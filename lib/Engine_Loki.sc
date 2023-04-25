@@ -46,7 +46,7 @@ Engine_Loki : CroneEngine {
 		SynthDef("aw",
 			{arg out, fxo, bnum, pn=0.0, spd=1.0, fcoff=8888, rls=1.0, lvl=1.0;
 			var isrev = spd < 0.0;
-			var pos = Select.kr(isrev,[0.0,BufFrames.kr(bnum)*0.88]);
+			var pos = Select.kr(isrev,[0.0,BufFrames.kr(bnum)-2]);
 			var trigz=T2A.ar(\tryg.tr);
 			var amp = EnvGen.ar(Env.adsr(0.001,0.3,0.7,rls*(BufDur.kr(bnum)-0.1)),trigz,doneAction:2);
 			var awesomeness=PlayBuf.ar(2,bnum,BufRateScale.kr(bnum)*spd,trigz,pos,0)*amp;
