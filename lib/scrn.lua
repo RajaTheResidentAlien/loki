@@ -64,7 +64,7 @@ function seqpg(slct)
         end
       end
     end
-    screen.move(5,60) hilite(slct,4) screen.text(uipag)
+    screen.move(5,60) hilite(slct,4) screen.text(uipag+1)
     screen.move(8,11) hilite(slct,5) screen.text("Dir#"..fildrsel..":") screen.move(8,19)
     screen.text(string.sub(fildir[fildrsel], 21, string.match(fildir[fildrsel], "^.*()/")))
 end
