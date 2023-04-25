@@ -360,6 +360,15 @@ function key(n,z)
           elseif sel==24 then
             spr=1-spr if spr>0 then params:set("SPre",sprenum) end --with preset selected k3 will toggle preset-'activate'
           else params:set("Fxv", 1-params:get("Fxv")) end
+        elseif page==2 then
+          if sel==-1 then
+            if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
+              if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1
+          elseif sel==0 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
+          elseif sel==1 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
+          elseif sel==2 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
+          elseif sel==3 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
+          elseif sel>3 then for y=1,4 do params:set("S"..y.."_Ply", math.random(0,1)) end end
         else                    --on the alternate(softcut) page, k3 can..
           if hsel==-1 then 
             vpr=1-vpr if vpr>0 then params:set("VPre",vprenum) end  --toggle preset-'activate'..
@@ -405,7 +414,8 @@ function callback(file_path)              --when 'fileselect' returns, process d
 end
 
 function stutz(num,typ,tp)  --clocked function for different kind of stutter applied on oneshot/eng trigs
-  local ranfreq1 = math.random(500,6500) local ranfreq2 = math.random(5000)+2800.0 local ranspd = math.random(-50,50)*0.002+1.0
+  local ranfreq1 = math.random(500,6500) local ranfreq2 = math.random(5000)+2800.0 
+  local ranspd = math.random(-50,50)*0.002+1.0
   local geom local rdr=((math.random(2)-1)*2)-1 local rndy=math.random(3) local tmp=math.random(3)
   local vl,rct rct=params:get("S"..typ.."_Rct") vl=params:get("S"..typ.."_Svl") 
   local enginstuts = {
@@ -416,7 +426,7 @@ function stutz(num,typ,tp)  --clocked function for different kind of stutter app
   if rdr>0 then geom=0 else geom=num end 
   for i=1,num do
     if tp==2 then
-      if num>6 then     --if incoming 'num' is greater than 8 do a 'geometric series' style of stutter(accelerando/deccelerando)..
+      if num>6 then--if incoming 'num' is greater than 8 do a 'geometric series' style of stutter(accelerando/deccelerando)..
         if rndy==3 then clock.sleep(math.pow(((1/tmp)*15)/tempo,0.09375*i)+0.02)
           elseif rndy==2 then clock.sleep(math.pow(((1/tmp)*15)/tempo,0.09375*(num-(i-1)))+0.01)
           else clock.sleep(1/((num+1)/((num+1)-geom))+0.02) end             
@@ -443,20 +453,20 @@ function vstutz(rp,vc,rndy,tmp,num) --a clocked function for yet another kind of
   end
 end
 
-function enginstep(vc,rp)     --vc=voice, rp=repeats
-  local ranfreq1=math.random(500,6500) local ranfreq2=math.random(5000)+2800.0 local ranspd=math.random(-50,50)*0.002+1.0
+function enginstep(vc,rp,sp)     --vc=voice, rp=repeats
+  local ranfreq1=math.random(500,6500) local ranfreq2=math.random(5000)+2800.0 
   local rct=params:get("S"..vc.."_Rct") local vl=params:get("S"..vc.."_Svl") 
   local engins = {        --engine.awyea#(pan, speed, gain, cutoff-freq, release-time(sec))
-    function() engine.awyea1(0.0,ranspd,vl, ranfreq1+((1-rct)*8388),1.0) end,    --no panning for kick drums
-    function() engine.awyea2(math.random(-10,10)*0.01,ranspd,vl, ranfreq1+((1-rct)*8388),1.0) end,
-    function() engine.awyea3(math.random(-50,50)*0.02,ranspd,vl, ranfreq2+((1-rct)*6088),1.0) end,--different freq 4 hi-hats
-    function() engine.awyea4(math.random(-50,50)*0.02,ranspd,vl, ranfreq1+((1-rct)*8388),1.0) end}
+    function() engine.awyea1(0.0,sp,vl, ranfreq1+((1-rct)*8388),1.0) end,    --no panning for kick drums
+    function() engine.awyea2(math.random(-10,10)*0.01,sp,vl, ranfreq1+((1-rct)*8388),1.0) end,
+    function() engine.awyea3(math.random(-50,50)*0.02,sp,vl, ranfreq2+((1-rct)*6088),1.0) end,--different freq 4 hi-hats
+    function() engine.awyea4(math.random(-50,50)*0.02,sp,vl, ranfreq1+((1-rct)*8388),1.0) end}
   engins[vc]() 
   if rp>1 and rp<5 then for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
   elseif rp>4 and rp<8 then 
-    rp=math.random(1,5)+((rp-4)*2); for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
+    rp=math.random(1,5)+((rp-4)*2); for i=1,rp do clock.sync(1/(4*rp)) engins[vc]() end
   elseif rp>7 then 
-    rp=math.random(1,5)+((rp-7)*2); ranspd=ranspd * -1; for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
+    rp=math.random(0,1)+(rp-7); for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
   end
 end
 
@@ -466,9 +476,12 @@ function popz()         --main triggering clock function
     for i=1,4 do                                          --beginning of code for one-shotz sequencer
       if params:get("S"..i.."_Ply")>0 then
         local tp=params:get("S"..i.."_Stt") local sln=params:get("S"..i.."_Sln")
+        local nt=seq[i][(tix%(#seq[i]+sln))+1]
         if pause[i]<1 then
-          if seq[i][(tix%(#seq[i]+sln))+1]>0 then
-            clock.run(enginstep,i,seq[i][(tix%(#seq[i]+sln))+1]) 
+          if nt>0 then
+            local ranspd=(math.random(-50,50)*0.002+1.0)
+            if nt>7 then ranspd = ranspd * -14. end
+            clock.run(enginstep,i,nt,ranspd) 
             if tp==2 then 
               if math.random(4)>3 then local rnm=math.random(16) pause[i]=1 clock.run(stutz,rnm,i,2) end
             elseif tp==1 then 
