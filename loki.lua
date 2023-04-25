@@ -480,7 +480,7 @@ function popz()         --main triggering clock function
         if pause[i]<1 then
           if nt>0 then
             local ranspd=(math.random(-50,50)*0.002+1.0)
-            if nt>7 then ranspd = ranspd * -14. end
+            if nt>7 then ranspd = ranspd * -2.8 end
             clock.run(enginstep,i,nt,ranspd) 
             if tp==2 then 
               if math.random(4)>3 then local rnm=math.random(16) pause[i]=1 clock.run(stutz,rnm,i,2) end
