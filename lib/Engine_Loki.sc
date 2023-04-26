@@ -1,4 +1,5 @@
 // CroneEngine_Loki
+// one-shots with dictionary for overlapping stutters + simple fx matrix
 // mischief managed
 //     - raja
 Engine_Loki : CroneEngine {
