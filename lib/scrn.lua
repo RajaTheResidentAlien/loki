@@ -70,9 +70,9 @@ function seqpg(slct)
 end
 
 function softcutv(vs,hs)
-  hilite(hs,-1) mcs(65,60,65,60,(vpr*0.5)+0.5)
-  screen.font_size(6) screen.move(68,62) screen.text("Preset#")
-  screen.font_size(10) screen.move(98,63) screen.text(vprenum) screen.font_size(8)
+  hilite(hs,-1) mcs(33,60,33,60,(vpr*0.5)+0.5)
+  screen.font_size(6) screen.move(35,62) screen.text("Preset#")
+  screen.font_size(10) screen.move(62,63) screen.text(vprenum) screen.font_size(8)
   hilite(hs,1) mcs(2,8,2,8,0.5) hilite(hs,2) screen.rect(8,3,8,9) screen.move(10,10) 
   screen.text(vs) mcs(20,8,20,8,0.5+(pfreez[vs]*0.5)) hilite(hs,3) 
   if params:get("V"..vs.."_Mod")==3 then mcs(26,8,26,8,lplay[vs]+1) 
@@ -92,10 +92,10 @@ function softcutv(vs,hs)
   hilite(hs,10) mcs(2,28,2,28,params:get("V"..vs.."_ASp")*0.5+0.5) mtmt(5,30,"Speed:",35,30,params:get("V"..vs.."_Spd"))
   hilite(hs,11) mtmt(65,37,"Pan:",100,38,params:get("V"..vs.."_Pn"))
   hilite(hs,12) mtmt(5,40,"Vol:",35,40,params:get("V"..vs.."_Vol"))
-  hilite(hs,13) mtmt(50,46,"Bars:",60,46,"") screen.font_size(20) screen.move(72,55) screen.font_face(8)
+  hilite(hs,13) mtmt(50,46,"Bars:",50,46,"") screen.font_size(20) screen.move(70,60) screen.font_face(8)
   screen.text((tixx%params:get("V"..vs.."_Bar")+1).."/"..params:get("V"..vs.."_Bar")) screen.font_face(1) screen.font_size(8)
   hilite(hs,14) screen.move(5,50) screen.text("APRc:") mcs(28,48,28,48,params:get("V"..vs.."_ARc")*0.5+0.5)
-  hilite(hs,15) screen.move(5,60) screen.text("LFO:") mcs(26,57,25,57,0.5+plf[vs])
+  hilite(hs,15) screen.move(5,60) screen.text("LFO:") mcs(24,58,24,58,0.5+plf[vs])
 end
 
 function mcs(x,y,cx,cy,cw) screen.move(x,y) screen.circle(cx,cy,cw) screen.stroke() end
