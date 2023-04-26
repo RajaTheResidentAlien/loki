@@ -461,11 +461,11 @@ function enginstep(vc,rp,sp)     --vc=voice, rp=repeats
     function() engine.awyea2(math.random(-10,10)*0.01,sp,vl, ranfreq1+((1-rct)*8388),1.0) end,
     function() engine.awyea3(math.random(-50,50)*0.02,sp,vl, ranfreq2+((1-rct)*6088),1.0) end,--different freq 4 hi-hats
     function() engine.awyea4(math.random(-50,50)*0.02,sp,vl, ranfreq1+((1-rct)*8388),1.0) end}
-  engins[vc]() 
+  engins[vc]()                                                --sequencer codes: 1 - 4 = that many hits per sixteenth
   if rp>1 and rp<5 then for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
-  elseif rp>4 and rp<8 then 
+  elseif rp>4 and rp<8 then                                    --5-7 = double the repetition(more textural in sound)
     rp=math.random(1,5)+((rp-4)*2); for i=1,rp do clock.sync(1/(4*rp)) engins[vc]() end
-  elseif rp>7 then 
+  elseif rp>7 then                                                            --8-11 = reverse with repetition
     rp=math.random(0,1)+(rp-7); for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
   end
 end
@@ -477,10 +477,10 @@ function popz()         --main triggering clock function
       if params:get("S"..i.."_Ply")>0 then
         local tp=params:get("S"..i.."_Stt") local sln=params:get("S"..i.."_Sln")
         local nt=seq[i][(tix%(#seq[i]+sln))+1]
-        if pause[i]<1 then
-          if nt>0 then
-            local ranspd=(math.random(-50,50)*0.002+1.0)
-            if nt>7 then ranspd = ranspd * -2.8 end
+        if pause[i]<1 then                            
+          if nt>0 then                                 
+            local ranspd=(math.random(-50,50)*0.002+1.0)        
+            if nt>7 then ranspd = ranspd * -2.8 end   --multiply speed for reversal(sped up for audibility(?))
             clock.run(enginstep,i,nt,ranspd) 
             if tp==2 then 
               if math.random(4)>3 then local rnm=math.random(16) pause[i]=1 clock.run(stutz,rnm,i,2) end
@@ -532,8 +532,8 @@ function popz()         --main triggering clock function
       local lpsc = brsc * params:get("V"..i.."_LpNum")
       local ps=58+lpsc if i<3 then ps=ps elseif i>2 and i<5 then ps=174+lpsc else ps=290+lpsc end 
       if params:get("V"..i.."_Go")>0 then 
-        softcut.pan(i,(math.random(-50,50)*0.02)*params:get("V"..i.."_Pn"))  --apply random panning
-        if params:get("V"..i.."_Mod")==3 then                                       --if in looper mode..
+        softcut.pan(i,(math.random(-50,50)*0.02)*params:get("V"..i.."_Pn"))  --(apply random panning)
+        if params:get("V"..i.."_Mod")==3 then                                       -- if in looper mode..
           if params:get("V"..i.."_Rc")==0 and params:get("V"..i.."_Impatnz")>0  
             and lpcount[i]>params:get("V"..i.."_Impatnz") and lplay[i]>0 and vpause[i]<1 then    
             local rn=math.random(0,params:get("V"..i.."_Bar")-1) local rp=ps+(rn*(60/tempo)) --..and 'impatient'..
