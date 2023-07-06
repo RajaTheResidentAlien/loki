@@ -1,8 +1,7 @@
 --screen stuff
-UI = require("ui")
-ply = UI.PlaybackIcon.new(69,5,8,4)
+UI = require("ui") ply = UI.PlaybackIcon.new(69,5,8,4)
 function redraw()
-  screen.clear() screen.aa(1) screen.move(1,1)   
+  screen.clear() screen.aa(1) screen.move(1,1) 
   if params:get("InMon")==1 then screen.level(15) else screen.level(2) end screen.circle(2,2,0.5) screen.stroke()
   screen.level(1) screen.rect(86,3,44,15) screen.close() screen.fill() screen.stroke()
   screen.font_face(22) screen.move(88,14) screen.font_size(11) 
@@ -31,13 +30,15 @@ function redraw()
       screen.font_size(8) screen.font_face(1)
       hilite(sel,k+3) screen.move(60,(k*8)+21) screen.text(params:get("S"..k.."_Svl")) hilite(sel,k+7)
       if params:get("S"..k.."_Dfl")>0 then mcs(74,(k*8)+19,74,(k*8)+19,2) else mcs(74,(k*8)+19,74,(k*8)+19,1) end 
-      hilite(sel,k+11) screen.move(80,(k*8)+21) screen.text((#seq[k]+params:get("S"..k.."_Sln"))) 
-      hilite(sel,k+15) screen.move(92,(k*8)+21)
+      hilite(sel,k+11) screen.move(80,(k*8)+21) 
+      screen.text((#seq[k]+params:get("S"..k.."_Sln"))) 
+      hilite(sel,k+15) screen.move(95,(k*8)+19)
+      if params:get("S"..k.."_Stt")==2 then screen.circle(94,(k*8)+19,2) 
+      elseif params:get("S"..k.."_Stt")==1 then screen.circle(94,(k*8)+19,1) 
+      else screen.circle(94,(k*8)+19,0.2) end screen.stroke()
+      hilite(sel,k+19) screen.move(100,(k*8)+21)
       if params:get("S"..k.."_Rct")>0 then screen.font_face(20) else screen.font_face(1) end screen.text("F"..k) --ran cutoff
-      hilite(sel,k+19) screen.move(108,(k*8)+19)
-      if params:get("S"..k.."_Stt")==2 then screen.circle(107,(k*8)+19,2) 
-      elseif params:get("S"..k.."_Stt")==1 then screen.circle(107,(k*8)+19,1) 
-      else screen.circle(107,(k*8)+19,0.2) end screen.stroke()
+      screen.stroke()
     end 
   elseif page==2 then seqpg(sel)
   else softcutv(vsel,hsel) end ply:redraw() screen.update() rdrw=0
@@ -57,45 +58,44 @@ function seqpg(slct)
         for i=1,util.clamp((#seq[k]+slen),1,16) do
           for g = 1,16 do
             if edit==0 then
-              if params:get("S"..k.."_Ply")>0 then hilite(((tix%(#seq[k]+slen))+1),(g+(uipag*16))) else screen.level(2) end
+              local hindx = util.wrap(tix,1,#seq[k]+slen)
+              if params:get("S"..k.."_Ply")>0 then hilite(hindx,(g+(uipag*16))) else screen.level(2) end
             else if ((sl==(g+(uipag*16))) and ((slct+1)==k)) then screen.level(15) else screen.level(5) end end
             if (g+(uipag*16)) <= (#seq[k]+slen) then screen.move(1+(g*7.4),(k*8)+19) screen.text(seq[k][g+(uipag*16)]) end
-          end
-        end
-      end
-    end
+    end end end end
     screen.move(5,60) hilite(slct,4) screen.text(uipag+1)
     screen.move(8,11) hilite(slct,5) screen.text("Dir#"..fildrsel..":") screen.move(8,19)
     screen.text(string.sub(fildir[fildrsel], 21, string.match(fildir[fildrsel], "^.*()/")))
 end
 
 function softcutv(vs,hs)
-  hilite(hs,-1) mcs(33,60,33,60,(vpr*0.5)+0.5)
+  local countess=voices[vs].tixx+1 hilite(hs,-1) mcs(33,60,33,60,(vpr*0.5)+0.5)
   screen.font_size(6) screen.move(35,62) screen.text("Preset#")
   screen.font_size(10) screen.move(62,63) screen.text(vprenum) screen.font_size(8)
   hilite(hs,1) mcs(2,8,2,8,0.5) hilite(hs,2) screen.rect(8,3,8,9) screen.move(10,10) 
-  screen.text(vs) mcs(20,8,20,8,0.5+(pfreez[vs]*0.5)) hilite(hs,3) 
-  if params:get("V"..vs.."_Mod")==3 then mcs(26,8,26,8,lplay[vs]+1) 
-    else mcs(26,8,26,8,params:get("V"..vs.."_Go")+1) end
+  screen.text(vs) mcs(20,8,20,8,0.5+(voices[vs].pfreez*0.5)) hilite(hs,3) 
+  if params:get("V"..vs.."_Mod")==3 then mcs(26,8,26,8,voices[vs].looplay+1) else mcs(26,8,26,8,params:get("V"..vs.."_Go")+1) end
   screen.level(5) mcs(33,8,33,8,params:get("V"..vs.."_Rc")+1)
   hilite(hs,4) screen.move(38,10) screen.text(params:string("V"..vs.."_In")) --input
   hilite(hs,5) screen.font_size(10) screen.move(50,11) screen.text(params:string("V"..vs.."_Mod")) hilite(hs,6) --mode
   if(params:get("V"..vs.."_Mod")<3) then mcs(2,15,2,15,params:get("V"..vs.."_ALn")*0.5+0.5) end --AmplitudePoll2Length
-  hilite(hs,7) if(params:get("V"..vs.."_Mod")<3) then mcs(2,20,2,20,params:get("V"..vs.."_PLn")*0.5+0.5) end --PtchPll2Lngth
+  hilite(hs,7) if(params:get("V"..vs.."_Mod")<3) then mcs(2,20,2,20,params:get("V"..vs.."_PLn")*0.5+0.5) end --PtchPoll2Lngth
   hilite(hs,8) screen.move(5,20) screen.font_size(8) --Length/Impatienz
   if(params:get("V"..vs.."_Mod")<3) then mtmt(5,20,"Length:",50,20,params:get("V"..vs.."_Len"))
   else mtmt(5,20,"Impatienz:",50,20,params:get("V"..vs.."_Impatnz")) end hilite(hs,9) 
-  if params:get("V"..vs.."_Mod")==3 then mtmt(65,28,"Loop#:",100,28,params:get("V"..vs.."_LpNum")) --LoopNum/Phase/Feedback
+  if params:get("V"..vs.."_Mod")==3 then 
+    mtmt(65,26,"Lp#:",82,28,params:get("V"..vs.."_LpNum")) 
   elseif params:get("V"..vs.."_Mod")==1 then 
-    mcs(60,26,60,26,params:get("V"..vs.."_APs")*0.5+0.5) mtmt(65,28,"Phase:",100,28,params:get("V"..vs.."_Scrll"))
-  else mtmt(65,28,"FeedBk:",100,28,params:get("V"..vs.."_Fbk")) end
-  hilite(hs,10) mcs(2,28,2,28,params:get("V"..vs.."_ASp")*0.5+0.5) mtmt(5,30,"Speed:",35,30,params:get("V"..vs.."_Spd"))
-  hilite(hs,11) mtmt(65,37,"Pan:",100,38,params:get("V"..vs.."_Pn"))
-  hilite(hs,12) mtmt(5,40,"Vol:",35,40,params:get("V"..vs.."_Vol"))
-  hilite(hs,13) mtmt(50,46,"Bars:",50,46,"") screen.font_size(20) screen.move(70,60) screen.font_face(8)
-  screen.text((tixx%params:get("V"..vs.."_Bar")+1).."/"..params:get("V"..vs.."_Bar")) screen.font_face(1) screen.font_size(8)
-  hilite(hs,14) screen.move(5,50) screen.text("APRc:") mcs(28,48,28,48,params:get("V"..vs.."_ARc")*0.5+0.5)
-  hilite(hs,15) screen.move(5,60) screen.text("LFO:") mcs(24,58,24,58,0.5+plf[vs])
+    mcs(60,26,60,26,params:get("V"..vs.."_APs")*0.5+0.5) mtmt(65,26,"Phase:",92,28,params:get("V"..vs.."_Phase"))
+  end 
+  hilite(hs,10) mtmt(88,32,"FdBk:",111,32,params:get("V"..vs.."_Fbk"))
+  hilite(hs,11) mcs(2,28,2,28,params:get("V"..vs.."_ASp")*0.5+0.5) mtmt(5,30,"Speed:",35,30,params:get("V"..vs.."_Spd"))
+  hilite(hs,12) mtmt(65,40,"Pan:",83,40,params:get("V"..vs.."_Pn"))
+  hilite(hs,13) mtmt(5,40,"Vol:",35,40,params:get("V"..vs.."_Vol"))
+  hilite(hs,14) mtmt(50,46,"Bars:",50,46,"") screen.font_size(20) screen.move(72,60) screen.font_face(8)
+  screen.text(countess.."/"..params:get("V"..vs.."_Bar")) screen.font_face(1) screen.font_size(8)
+  hilite(hs,15) screen.move(5,50) screen.text("APRc:") mcs(28,48,28,48,params:get("V"..vs.."_ARc")*0.5+0.5)
+  hilite(hs,16) screen.move(5,60) screen.text("LFO:") mcs(24,58,24,58,0.5+voices[vs].plf)
 end
 
 function mcs(x,y,cx,cy,cw) screen.move(x,y) screen.circle(cx,cy,cw) screen.stroke() end
