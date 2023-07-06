@@ -3,7 +3,7 @@
 // mischief managed
 //     - raja
 Engine_Loki : CroneEngine {
-	classvar maxVoices=18;
+	classvar maxVoices=11;
 	classvar s1=0;
 	classvar s2=0;
 	classvar s3=0;
@@ -50,8 +50,8 @@ Engine_Loki : CroneEngine {
 			var pos = Select.kr(isrev,[0.0,BufFrames.kr(bnum)-2]);
 			var trigz=T2A.ar(\tryg.tr);
 			var amp = EnvGen.ar(Env.adsr(0.001,0.3,0.7,rls*(BufDur.kr(bnum)-0.1)),trigz,doneAction:2);
-			var awesomeness=PlayBuf.ar(2,bnum,BufRateScale.kr(bnum)*spd,trigz,pos,0)*amp;
-			Out.ar([fxo,out],Pan2.ar(MoogFF.ar(awesomeness,fcoff,2.2),pn,lvl));
+			var awesomeness=LPF.ar(PlayBuf.ar(2,bnum,BufRateScale.kr(bnum)*spd,trigz,pos,0),6969,1.4)*amp;
+			Out.ar([fxo,out],Pan2.ar(MoogFF.ar(awesomeness.softclip,fcoff,2.8),pn,lvl));
 		}).add;
 		
 		/*SynthDef("awx",
@@ -94,16 +94,16 @@ Engine_Loki : CroneEngine {
 		
 		      var send;
 		      var receive = In.ar(fxindx, 2);
-		      var input = Mix.ar(Array.fill(4,{ CombC.ar(receive, 0.1, LFNoise1.kr(0.1.rand, 0.01, 0.05), 4, 0.1) }));
+		      var input = Mix.ar(Array.fill(2,{ CombC.ar(receive, 0.1, LFNoise1.kr(0.1.rand, 0.01, 0.05), 4, 0.1) }));
 		      input = AllpassC.ar(input, 0.050, [0.050.rand, 0.050.rand], 1);
 		      input = AllpassC.ar(input, 0.050, [0.050.rand, 0.050.rand], 1);
 		      send = receive + (input  * Lag3.kr(noff, 0.01));
 		      Out.ar(out, LeakDC.ar(send+receive));
 		}).add;
 		
-		SynthDef("Master", {arg in, out,thresh=0.988,below=1.0,above=0.4,att=0.008,rls=0.4;
+		SynthDef("Master", {arg in, out,thresh=0.988,below=1.0,above=0.4,att=0.005,rls=0.2;
 		      var receive = In.ar(in, 2);
-		      var send = Limiter.ar(CompanderD.ar(MoogFF.ar(receive,6555,1.4),thresh,below,above,att,rls),0.99,0.008);
+		      var send = Limiter.ar(CompanderD.ar(receive*1.4,thresh,below,above,att,rls,1.4),0.99,0.008);
 		      Out.ar(out, send);
 		}).add;
 
