@@ -1,5 +1,4 @@
 --Seq(Main)-page parameters
-function pollpaus(art) clock.sleep(0.1) params:set("ATr",art) end
 params:add_number("Swng", "Swing",0.0,2.0,0.0) params:add_number("Swdth", "Swidth",0.0,1.0,0.1) 
 params:add_number("InMon", "InputMonitor",0,1,1) params:set_action("InMon", function(imon) audio.level_monitor(imon) end) 
 for i=1,4 do
@@ -22,14 +21,13 @@ params:add_number("AT2","AmpTrigRight",0,1,0)
 params:set_action("AT2", function(atr) if atr>0 then pollr:start() else pollr:stop() end end)
 params:add_number("Fxvc", "FXVortexCycle",1,64,8) params:add_number("Fxv", "FXVortex",0,1,0)
 params:set_action("Fxv", function(fx) if fx<1 then engine.fxrtds(0) engine.fxrtrz(0) engine.fxrtrv(0)end end)
-params:add_number("Pll","PollPause",0,1,0)
-params:set_action("Pll", function(pll) if pll<1 then clock.run(pollpaus,params:get("ATr")) params:set("ATr",1) end end)
 
 function spwrit(nam)
   local writab={} writab["Tempo"]=params:get("clock_tempo") writab["Swng"]=params:get("Swng") writab["Swdth"]=params:get("Swdth")
   writab["S_PRz"]=params:get("S_PRz") writab["PT1"]=params:get("PT1") writab["PT2"]=params:get("PT2")
   writab["AT1"]=params:get("AT1") writab["AT2"]=params:get("AT2") writab["ATr"]=params:get("ATr")
   writab["Fxvc"]=params:get("Fxvc") writab["Fxv"]=params:get("Fxv") writab["InMon"]=params:get("InMon")
+  writab["RezPitchz"]=rezpitchz
   for i=1,4 do
     writab["S"..i.."_Ply"]=params:get("S"..i.."_Ply") writab["S"..i.."_Stt"]=params:get("S"..i.."_Stt")
     writab["S"..i.."_Rct"]=params:get("S"..i.."_Rct") writab["S"..i.."_Rln"]=params:get("S"..i.."_Rln")
@@ -49,6 +47,7 @@ function spread(nam)
       params:set("Swng",readtab["Swng"]) params:set("Swdth",readtab["Swdth"]) 
       params:set("S_PRz",readtab["S_PRz"]) params:set("PT1",readtab["PT1"]) params:set("PT2",readtab["PT2"])
       params:set("Fxvc", readtab["Fxvc"]) params:set("Fxv", readtab["Fxv"]) params:set("InMon", readtab["InMon"])
+      rezpitchz=readtab["RezPitchz"]
     end
     for i=1,4 do 
       params:set("S"..i.."_Ply", readtab["S"..i.."_Ply"]) params:set("S"..i.."_Stt", readtab["S"..i.."_Stt"])
