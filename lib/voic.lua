@@ -47,7 +47,7 @@ function Voic:mode(mde) -- mode1 = stutter, mode2 = delay(echo), mode3 = looper
   self.prvmde = self.mde self.lpcount=0 self.mde = mde ststrt,stend=strtnd(self.num,lenth)
   if self.mde==3 then softcut.rec(self.num,0) softcut.loop(self.num,0)
   else
-    softcut.rec(self.num,1) softcut.loop(self.num,1) 
+    softcut.loop(self.num,1) 
     if self.mde==1 then self.prvstp=self.tixx params:set("V"..self.num.."_Phase",0.0) end
   end
   softcut.pre_level(self.num,params:get("V"..self.num.."_Fbk")) softcut.position(self.num,ststrt)
@@ -98,7 +98,13 @@ function Voic:phas(phs)    --only applicable to stutter(1) and looper(3) modes
   elseif self.mde==1 then
     local rootphs=self.prvstp
     ststart = self.strt[self.lpno]+(qtntsec*rootphs)+(phs*lenth)
-    softcut.loop_start(self.num,ststart)  softcut.loop_end(self.num,ststart+lenth) end
+    softcut.loop_start(self.num,ststart)  softcut.loop_end(self.num,ststart+lenth)
+  else 
+    ststart,btsprbr=delmap(self.num) 
+    ststart=ststart+(phs*lenth) 
+    softcut.loop_start(self.num,ststart)  
+    softcut.loop_end(self.num,ststart+lenth) 
+  end
   softcut.position(self.num,ststart)
 end
 
