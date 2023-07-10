@@ -41,13 +41,14 @@ end
 function spread(nam)
   local err local readtab={} readtab,err=tab.load(_path.data.."loki/"..nam)
   if err==nil then
-    seq=readtab["seq"] selct=readtab["selct"] fildir=readtab["fildir"] files=readtab["files"] 
+    seq=readtab["seq"]  
     if prmfreez<1 then 
       swuiflag=readtab["swuiflag"] params:set("clock_tempo", readtab["Tempo"]) 
       params:set("Swng",readtab["Swng"]) params:set("Swdth",readtab["Swdth"]) 
       params:set("S_PRz",readtab["S_PRz"]) params:set("PT1",readtab["PT1"]) params:set("PT2",readtab["PT2"])
       params:set("Fxvc", readtab["Fxvc"]) params:set("Fxv", readtab["Fxv"]) params:set("InMon", readtab["InMon"])
-      rezpitchz=readtab["RezPitchz"]
+      params:set("ATr", readtab["ATr"]) params:set("AT1", readtab["AT1"]) params:set("AT2", readtab["AT2"])
+      rezpitchz=readtab["RezPitchz"] selct=readtab["selct"] fildir=readtab["fildir"] files=readtab["files"]
     end
     for i=1,4 do 
       params:set("S"..i.."_Ply", readtab["S"..i.."_Ply"]) params:set("S"..i.."_Stt", readtab["S"..i.."_Stt"])
