@@ -27,8 +27,8 @@
 -- o_O.thanx for yer mischief.O_o
 engine.name='Loki'
 rezpitchz={44,46,47,49,51,52,55,56,58,59,61,63,64,67,68,70,71,73,75,76}
-fileselect=require('fileselect') scrn=include 'lib/scrn' grd=include 'lib/grd'
-mutil=require("musicutil") vox=include("loki/lib/voic")
+fileselect=require('fileselect') scrn=include 'lib/scrn' 
+mutil=require("musicutil") vox=include("loki/lib/voic") grd=include 'lib/grd'
 fildir={_path.audio.."loki/BD/",_path.audio.."loki/SN/",_path.audio.."loki/HH/",_path.audio.."loki/XX/"}
 fildrsel=1 filsel=0 sel=-1 sl=1 vsel=1 hsel=-1 edit=0 page=1 uipag=0 spr=0 vpr=0 mpr=0 rdr=0 rdrw=0 grdrw=1
 pollf=0 pollr=0 go=0 tix=0 tixx=0 keytog=0 fil=0 tempo=0 sprenum=1 vprenum=1 lrn=0 
@@ -82,7 +82,7 @@ function init()
           if params:get("V"..i.."_ALn")>0 then
             if params:get("V"..i.."_Mod")==3 then 
               voices[i].prerec=2 voices[i].lpcount=1 params:set("AT2",0)
-            else params:set("V"..i.."_Len",(math.random(64)*2)*0.0078125) end
+            else params:set("V"..i.."_Len",(math.random(64)*2)*0.0078125) end  --minimum of 1/128th note
           end
           if params:get("V"..i.."_APs")>0 then
             if params:get("V"..i.."_Mod")==3 then 
@@ -90,14 +90,14 @@ function init()
             else params:set("V"..i.."_Phase",math.random(1000)*0.001) end 
           end
           if params:get("V"..i.."_ASp")>0 then
-            params:set("V"..i.."_Spd",params:get("V"..i.."_Spd")+((math.random(8)-4)*2)*0.015625) 
+            params:set("V"..i.."_Spd",params:get("V"..i.."_Spd")+((math.random(8)-4)*2)*0.015625)
           end
         elseif val<(params:get("ATr")*0.8) and ampll>0 then pllpset(0) end
   end end end
   pchlf.callback = function(val)
-    if val>20 then
-      for i=1,6 do if params:get("V"..i.."_PLn")>0 then params:set("V"..i.."_Lns",1.0/val) end end
-      if params:get("S_PRz")>0 then 
+    if val>20 then --i cut out below 20Hz because of guitar and mics, but for modular inputs this could be removed
+      for i=1,6 do if params:get("V"..i.."_PLn")>0 then params:set("V"..i.."_Lns",1.0/val) end end --1/freq = wavelength in secs
+      if params:get("S_PRz")>0 then                                                   --for wavetable-oscillator-like control
         engine.rzset(mutil.freq_to_note_num(val),0.2,0.2) 
         engine.fxrtrz(1) engine.fxrtrv(math.random(2)-1)
       end 
@@ -243,7 +243,7 @@ function enc(n,d)                         --ENCODER--
             params:set("V"..vsel.."_Len",util.round(util.clamp(vln+(d*0.004),0.004,4.0),0.004))
           end
         else params:set("V"..vsel.."_Impatnz",util.clamp(params:get("V"..vsel.."_Impatnz")+d,-1,64)) end
-      elseif hsel==9 then   --> in "St" mode(scrolls phase), in "Lp"(choose loop num), else feedback
+      elseif hsel==9 then   --> in "St" mode(scrolls phase), in "Lp"(choose loop num)
         if params:get("V"..vsel.."_Mod")==3 then
           params:set("V"..vsel.."_LpNum", util.wrap(params:get("V"..vsel.."_LpNum")+d,1,8))
         elseif params:get("V"..vsel.."_Mod")==1 then
@@ -264,14 +264,14 @@ function enc(n,d)                         --ENCODER--
   if(rdrw<1) then rdrw=1 end
 end
 
-function key(n,z)
-  if n==1 and z==1 then
-    oone=1 onne=1
-  elseif n==1 and z==0 then     
+function key(n,z)         --for fastest triggers from double-press, this flagging system seems better than using timers...
+  if n==1 and z==1 then   --(but makes for harder-to-follow code ;p, and k1-related-double-presses need half-second-linger on k1)..
+    oone=1 onne=1             --'onne' helps track for "k1 followed by k2", 'oone' helps track for 'k1 then k3'...
+  elseif n==1 and z==0 then                     --'twoo' helps for 'k3 then k2', and 'two' helps for 'k2 then k3'...
     onne=util.clamp(onne-1,0,2) oone=util.clamp(oone-1,0,2)
   elseif n==2 and z==1 then
     if onne==1 then                                               --k1 followed by k2 decrements preset..
-      if page==1 then 
+      if page<=2 then 
         params:set("SPre", util.wrap(params:get("SPre")-1,1,500)) --..(on page1)..
         sprenum=params:get("SPre")
       else                                                        --..(on page2)
@@ -280,12 +280,14 @@ function key(n,z)
       end onne=2
     elseif twoo==1 then                               --k3 followed by k2 toggles random echo/reverb
       keytog=1-keytog
-      if keytog>0 then
-        engine.dstset(math.random(1,6)*((tempo/60.)*0.03125),1) engine.fxrtrv(math.random(0,1)) 
-      else engine.fxrtrv(0) end
-      engine.fxrtds(keytog*2) twoo=2
-    else two=1 end--k2-down followed by k3-down picks random files(main page)..
-  elseif n==2 and z==0 then                  --..or changes selected voice's 'Mode'(softcut page)
+      if sel==2 then engine.rzset(rezpitchz[math.random(20)],0.22,0.28); engine.fxrtrz(1)
+      else
+        if keytog>0 then engine.dstset(math.random(1,6)*((tempo/60.)*0.03125),1) engine.fxrtrv(math.random(0,1)) 
+        else engine.fxrtrv(0) end
+        engine.fxrtds(keytog*2) 
+      end twoo=2
+    else two=1 end
+  elseif n==2 and z==0 then                
     if onne==0 then
     if twoo==0 then
       if two<2 then
@@ -306,13 +308,8 @@ function key(n,z)
             if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
               if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1
               for i=1,6 do voices[i]:rsync() end
-          elseif hsel==1 then     --..clear the buffer region if the leftmost 'V#' in the row is selected...
+          elseif hsel==1 then    --..or clears the buffer region if leftmost dot in top row of voice's screenUI is selected
                 voices[vsel]:clear()
-          elseif hsel==9 then
-              if params:get("V"..vsel.."_Mod")==1 then 
-                voices[vsel].strt[util.clamp(voices[vsel].lpno+1,1,8)] = 
-                (params:get("V"..vsel.."_Phase") * 58)+((math.floor((vsel-1)/2)*116)+58) 
-              end
           else
             if params:get("V"..vsel.."_Mod")==1 then                              --Mode 1 = stutter
                 params:set("V"..vsel.."_Go",1-params:get("V"..vsel.."_Go"))  --k2 turns stutter on/off
@@ -328,7 +325,7 @@ function key(n,z)
     else onne=util.clamp(onne-1,0,2) end
   elseif n==3 and z==1 then
     if oone==1 then                       --k1 followed by k3 increments preset..
-      if page==1 then 
+      if page<=2 then 
         params:set("SPre", util.wrap(params:get("SPre")+1,1,500)) --..(on main page)..
         sprenum=params:get("SPre")
       else                            
@@ -337,7 +334,7 @@ function key(n,z)
       end oone=2
     elseif two==1 then
       if page==1 then
-        if sel==0 then  --on main page, while 'tempo' selected, k2-down then k3-down(release in same order)
+        if ((sel>=-1) and (sel<2)) then --page1:with tempo/transport/swing selected, k2-down then k3-down(release same order)
           params:set("InMon", 1-params:get("InMon"))  --(un)mutes input monitor
         elseif sel>3 and sel<8 then       --otherwise, chooses random files..
           for i=1,4 do selct[i] = math.random(#files[i]) engine.flex(i-1,fildir[i]..files[i][selct[i]]) end
@@ -345,15 +342,15 @@ function key(n,z)
           for i=1,4 do params:set("S"..i.."_Dfl", math.random(2)-1) end
         elseif sel>11 and sel<16 then  --..or randomly toggles 'random sequence length' option..
           for i=1,4 do params:set("S"..i.."_Rln", math.random(2)-1) end
-        elseif sel>15 and sel<20 then  --....or randomly toggles 'random cutoff' option..
+        elseif sel>15 and sel<20 then  --..or randomly toggles 'random cutoff' option..
           for i=1,4 do  params:set("S"..i.."_Stt", math.random(3)-1) end  --..depends on UI selected
         elseif sel>19 and sel<24 then  --..or randomly toggles random stutter option..
           for i=1,4 do params:set("S"..i.."_Rct", math.random(2)-1) end
         elseif sel==24 then params:set("VPre", util.wrap(params:get("SPre"),1,500)) end
       elseif page==2 then
-        if sel==4 then params:set("InMon", 1-params:get("InMon")) end --(un)mutes input monitor
+        params:set("InMon", 1-params:get("InMon")) --(un)mutes input monitor
       else              --on softcut page, k2-down followed by k3-down switches through modes
-        if hsel==2 then params:set("InMon", 1-params:get("InMon"))  --(un)mutes input monitor
+        if hsel<=2 then params:set("InMon", 1-params:get("InMon")) -- or (un)mutes input monitor(with transport/preset selected)
           else params:set("V"..vsel.."_Mod",util.wrap(params:get("V"..vsel.."_Mod")+1,1,3)) end
       end
       two=2
@@ -380,7 +377,9 @@ function key(n,z)
               if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1
               for i=1,6 do voices[i]:rsync() end
           elseif sel==1 then swuiflag=util.wrap(swuiflag+1,0,2) if swuiflag==1 then swim=params:get("Swng") end
-          elseif sel==2 then tix=0 tixx=-1 for i=1,6 do voices[i]:rsync() end --while fxv selected, k3 can reset transport..
+          elseif sel==2 then 
+            params:set("Fxv", 1-params:get("Fxv")) 
+            if params:get("Fxv")<1 then engine.fxrtrz(0) engine.fxrtrv(0) engine.fxrtds(0) end
           elseif sel>3 and sel<8 then params:set("S"..(sel-3).."_Ply", 1-params:get("S"..(sel-3).."_Ply"))
           elseif sel>7 and sel<12 then params:set("S"..(sel-7).."_Dfl", 1-params:get("S"..(sel-7).."_Dfl"))
           elseif sel>11 and sel<16 then params:set("S"..(sel-11).."_Rln", 1-params:get("S"..(sel-11).."_Rln"))
@@ -390,7 +389,10 @@ function key(n,z)
           elseif sel>19 and sel<24 then params:set("S"..(sel-19).."_Rct", 1-params:get("S"..(sel-19).."_Rct"))
           elseif sel==24 then
             spr=1-spr if spr>0 then params:set("SPre",sprenum) end --with preset selected k3 will toggle preset-'activate'
-          else params:set("Fxv", 1-params:get("Fxv")) end
+          else 
+            if go<1 then clock.transport.start() end --while 'tempo' is selected, k3 can reset transport..
+            tix=0 tixx=-1 for i=1,6 do voices[i]:rsync() end --..or reset&start transport if stopped
+          end
         elseif page==2 then
           if sel==-1 then
             if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
@@ -488,11 +490,19 @@ function enginstep(vc,rp,sp)     --vc=voice, rp=repeats
   local ranfreq1=math.random(500,6500) local ranfreq2=math.random(5000)+2800.0 
   local rct=params:get("S"..vc.."_Rct") local vl=params:get("S"..vc.."_Svl") 
   local engins = {        --engine.awyea#(pan, speed, gain, cutoff-freq, release-time(sec))
-    function() engine.awyea1(0.0,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdbdn=15 grdrw=1 end, --no panning for kick drums
-    function() engine.awyea2(math.random(-10,10)*0.01,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdsnn=15 grdrw=1 end,
-    function() engine.awyea3(math.random(-50,50)*0.02,sp,vl, ranfreq2+((1-rct)*6088),1.0) grdhhn=15 grdrw=1 end,
-    function() engine.awyea4(math.random(-50,50)*0.02,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdxxn=15 grdrw=1 end}
-  engins[vc]()                                                --sequencer codes: 1 - 4 = that many hits per sixteenth
+    function()
+      engine.awyea1(0.0,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdbdn=15 grdrw=1
+    end, --no panning for kick drums
+    function()
+      engine.awyea2(math.random(-10,10)*0.01,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdsnn=15 grdrw=1 
+    end,
+    function()
+      engine.awyea3(math.random(-50,50)*0.02,sp,vl, ranfreq2+((1-rct)*6088),1.0) grdhhn=15 grdrw=1
+    end,
+    function()
+      engine.awyea4(math.random(-50,50)*0.02,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdxxn=15 grdrw=1
+    end }
+  engins[vc]()                           --sequencer codes: 1 - 4 = that many hits per sixteenth
   if rp>1 and rp<5 then for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
   elseif rp>4 and rp<8 then                                    --1.5 the repetition(more textural in sound)
     rp=math.random(1,5)+((rp-4)*1.5); for i=1,rp do clock.sync(1/(4*rp)) engins[vc]() end
