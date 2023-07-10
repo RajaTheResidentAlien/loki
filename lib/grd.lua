@@ -108,7 +108,7 @@ function pag3(rwoffst)          -- PAGE 3: SOFTCUT GAMES!! :D (for now, just 'my
   for i=1,6 do 
     local flg; if ((voices[i].prerec>0) or (voices[i].rc>0)) then flg=1 else flg=0 end
     grd:led(i+8,1+rwoffst,flg*15) 
-    grd:led(i+8,2+rwoffst,params:get("V"..i.."_Rc")*15)
+    grd:led(i+8,2+rwoffst,voices[i].rc*15)
   end
   if smod>0 then
     grd:led(1+vsel,1+rwoffst,15)
@@ -265,15 +265,17 @@ function pag3keyzoff(x,y,z,rwoffst)
       if smod>0 then
         if keycount==((x-1)<<2) then vsel = x-1 end
       else
-        if keycount==((x-1)<<2) then params:set("V"..(x-1).."_Go",1-params:get("V"..(x-1).."_Go")) end
+        if keycount==((x-1)<<2) then 
+           if sprklz[x-1].busy>0 then sprklz[x-1]:go(0) 
+             else params:set("V"..(x-1).."_Go",1-params:get("V"..(x-1).."_Go")) end
+        end
       end
     elseif x==8 then rmod=1-rmod
     elseif ((x>8) and (x<15)) then
       if keycount==((x-1)<<2) then 
         if voices[x-8].mde==3 then voices[x-8].prerec=2
         else 
-          params:set("V"..(x-8).."_Go",1-params:get("V"..(x-8).."_Go"))  --k2 turns stutter on/off
-          if params:get("V"..(x-8).."_Go")>0 then params:set("V"..(x-8).."_Rc",1) end
+          params:set("V"..(x-8).."_Rc",1-params:get("V"..(x-8).."_Rc"))
         end
       end
     elseif x==15 then vmod=util.wrap(vmod+1,1,4)
@@ -281,12 +283,8 @@ function pag3keyzoff(x,y,z,rwoffst)
   elseif (y==(2+rwoffst)) then
     if x==1 then omod=util.wrap(omod+1,0,2)
     elseif keycount==700 then smod=1-smod
-    elseif keycount==800 then params:set("V1_Rc",1-params:get("V1_Rc"))
-    elseif keycount==900 then params:set("V2_Rc",1-params:get("V2_Rc"))
-    elseif keycount==1000 then params:set("V3_Rc",1-params:get("V3_Rc"))
-    elseif keycount==1100 then params:set("V4_Rc",1-params:get("V4_Rc"))
-    elseif keycount==1200 then params:set("V5_Rc",1-params:get("V5_Rc"))
-    elseif keycount==1300 then params:set("V6_Rc",1-params:get("V6_Rc"))
+    elseif keycount==800 then sneakyrec(1) elseif keycount==900 then sneakyrec(2) elseif keycount==1000 then sneakyrec(3)
+    elseif keycount==1100 then sneakyrec(4) elseif keycount==1200 then sneakyrec(5) elseif keycount==1300 then sneakyrec(6)
     elseif keycount==1400 then vmod=util.wrap(vmod-1,1,4)
     elseif x==1500 then xmod=1-xmod
     elseif ((keycount>400) and (keycount<1200)) then 
@@ -295,4 +293,8 @@ function pag3keyzoff(x,y,z,rwoffst)
       params:set("V"..(((keycount-1200)>>2)-7).."_ARc",1-params:get("V"..(((keycount-1200)>>2)-7).."_ARc"))
     end
   end keycount=0
+end
+
+function sneakyrec(nmbr)
+  voices[nmbr].rc=1-voices[nmbr].rc softcut.rec(nmbr,voices[nmbr].rc) softcut.rec_level(nmbr,voices[nmbr].rc)
 end
