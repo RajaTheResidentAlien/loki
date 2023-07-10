@@ -69,7 +69,7 @@ Engine_Loki : CroneEngine {
 		
 		SynthDef("Rezor", { arg out, freq=220, amp=0.12, rngz=0.6, fxindx=smokefx[0].index, noff;
 		
-		      var freqs = Array.fill(4, { arg i; freq*((i*0.5)+1); });
+		      var freqs = Array.fill(4, { arg i; freq*((i*1.618033988749895)+1); });
 		      var amps = Array.fill(4, { arg i; (1/((i+1)*3))*amp; });
 		      var rings = Array.fill(4, { arg i; (1/(i+1)).pow(0.5)*rngz });
 		      var receive = In.ar(fxindx, 2);
