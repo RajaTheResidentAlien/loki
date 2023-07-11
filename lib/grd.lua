@@ -11,18 +11,28 @@ if grd.device then
 end
 
 function grdraw()
+  local countitup=0
   grd:all(0) grd:led(1,1,go*11+4)
   if grdpg==1 then
-    if grdbdn>=14 then for i=-1,1 do for j=-1,1 do grd:led(gridbd[1]+i,gridbd[2]+j,15) end end end
-    grd:led(gridbd[1],gridbd[2],util.clamp(grdbdn,0,15))
-    if grdsnn>=14 then for i=-2,2 do for j=-2,2 do grd:led(gridsn[1]+i,gridsn[2]+j,15) end end end
-    grd:led(gridsn[1],gridsn[2],util.clamp(grdsnn,0,15))
-    grd:led(gridhh[1],gridhh[2],util.clamp(grdhhn,0,15))
-    if grdxxn>=14 then for i=-1,1 do for j=-2,2 do grd:led(gridxx[1]+i,gridxx[2]+j,15) end end end
-    grd:led(gridxx[1],gridxx[2],util.clamp(grdxxn,0,15))
+    for w=1,4 do countitup=countitup + params:get("S"..w.."_Ply") end 
+    if countitup==0 then 
+      if (tix%4)<=1 then 
+        for ex=1,cl do
+          grd:led(util.clamp(ex+1,2,15), util.clamp(ex%rw,2,15), (1-(tix%2))*6+9)
+          grd:led(util.clamp(cl-ex,2,15),util.clamp(ex%rw,2,15),(1-(tix%2))*6+9)
+        end
+      else grd:all(0) grd:led(1,1,go*11+4) end
+    else
+      if grdbdn>=14 then for i=-1,1 do for j=-1,1 do grd:led(gridbd[1]+i,gridbd[2]+j,15) end end end
+      grd:led(gridbd[1],gridbd[2],util.clamp(grdbdn,0,15))
+      if grdsnn>=14 then for i=-2,2 do for j=-2,2 do grd:led(gridsn[1]+i,gridsn[2]+j,15) end end end
+      grd:led(gridsn[1],gridsn[2],util.clamp(grdsnn,0,15))
+      grd:led(gridhh[1],gridhh[2],util.clamp(grdhhn,0,15))
+      if grdxxn>=14 then for i=-1,1 do for j=-2,2 do grd:led(gridxx[1]+i,gridxx[2]+j,15) end end end
+      grd:led(gridxx[1],gridxx[2],util.clamp(grdxxn,0,15))
+    end
   elseif grdpg==2 then pag2(0) if rw>8 then pag3(8) end
-  else pag3(0) if rw>8 then pag2(8) end
-  end
+  else pag3(0) if rw>8 then pag2(8) end end
   grd:refresh()
 end
 
@@ -88,17 +98,13 @@ function pag2(rwoffst)
   grd:led(5,8+rwoffst,params:get("AT1")*10+5) 
   grd:led(6,8+rwoffst,spr*10+5) grd:led(11,8+rwoffst,vpr*10+5) 
   grd:led(12,8+rwoffst,params:get("AT2")*10+5)
-    grd:led(util.round((((tix-1)%(64+maxlen))/16)+0.5,1)+1,1+rwoffst,15) prevlen=-64 
-    if lenslct>0 then  
-      for i=1,4 do 
-        if i==lenslct then grd:led(lenslct+9,1+rwoffst,10+(5*params:get("S"..lenslct.."_Ply"))) 
-          else grd:led(i+9,1+rwoffst,4+(4*params:get("S"..i.."_Ply"))) end 
-      end
-    else
-      for i=1,4 do 
-        grd:led(i+9,1+rwoffst,2+(4*params:get("S"..i.."_Ply"))) 
-      end
+  grd:led(util.round((((tix-1)%(64+maxlen))/16)+0.5,1)+1,1+rwoffst,15) prevlen=-64 
+  if lenslct>0 then  
+    for i=1,4 do 
+      if i==lenslct then grd:led(lenslct+9,1+rwoffst,10+(5*params:get("S"..lenslct.."_Ply"))) 
+        else grd:led(i+9,1+rwoffst,4+(4*params:get("S"..i.."_Ply"))) end 
     end
+  end                          for i=1,4 do grd:led(i+12,8,params:get("S"..i.."_Ply")*15) end
 end
 
 function pag3(rwoffst)          -- PAGE 3: SOFTCUT GAMES!! :D (for now, just 'mystical sparkly' sequencer)
@@ -144,8 +150,7 @@ end
 
 function pag2keyz(x,y,z,rwoffst)
   if y==(1+rwoffst) then
-    if (x>1) and (x<6) then 
-      if lenslct>0 then params:set("S"..(x-1).."_Ply",1-params:get("S"..(x-1).."_Ply")) else uipag = x - 2 end 
+    if (x>1) and (x<6) then uipag = x - 2  
     elseif x==(cl-3) then if lenslct==4 then lenslct=0 else lenslct=4 end
     elseif x==(cl-4) then if lenslct==3 then lenslct=0 else lenslct=3 end
     elseif x==(cl-5) then if lenslct==2 then lenslct=0 else lenslct=2 end
@@ -194,7 +199,8 @@ function pag2keyz(x,y,z,rwoffst)
     if x==5 then params:set("AT1",1-params:get("AT1"))
     elseif x==6 then spr=1-spr if spr>0 then params:set("SPre",sprenum) end 
     elseif x==11 then vpr=1-vpr if vpr>0 then params:set("VPre",vprenum) end 
-    elseif x==12 then params:set("AT2",1-params:get("AT2")) end
+    elseif x==12 then params:set("AT2",1-params:get("AT2")) 
+    elseif x>=13 then params:set("S"..(x-12).."_Ply",1-params:get("S"..(x-12).."_Ply")) end
   end
 end
 
