@@ -96,7 +96,7 @@ m.event = function(data)
   local d = midi.to_msg(data)
   if d.type == "program_change" then
     if lrn>0 then            --MIDI-learn of program change
-      if page>0 then
+      if page==1 then
         if sel==25 then if lrn==2 then params:set("SPrePgChU",d.val) else params:set("SPrePgChD",d.val) end
         elseif sel==3 then params:set("RestartPgCh",d.val)    --while file directory field is selected
         elseif sel==2 then params:set("FXVPgCh",d.val)
@@ -108,7 +108,7 @@ m.event = function(data)
         elseif sel==-4 then params:set("PtchPRPgCh",d.val)
         elseif sel==-5 then params:set("PtchPRzPgCh",d.val)
         end
-      else
+      elseif page==3 then
         if vsel==0 then if lrn==2 then params:set("VPrePgChU",d.val) else params:set("VPrePgChD",d.val) end 
         else
           if hsel==-1 then params:set("V"..vsel.."PreFreezePgCh",d.val) 
