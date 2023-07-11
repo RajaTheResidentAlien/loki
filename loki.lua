@@ -31,7 +31,7 @@ fileselect=require('fileselect') scrn=include 'lib/scrn'
 mutil=require("musicutil") vox=include("loki/lib/voic") grd=include 'lib/grd'
 fildir={_path.audio.."loki/BD/",_path.audio.."loki/SN/",_path.audio.."loki/HH/",_path.audio.."loki/XX/"}
 fildrsel=1 filsel=0 sel=-1 sl=1 vsel=1 hsel=-1 edit=0 page=1 uipag=0 spr=0 vpr=0 mpr=0 rdr=0 rdrw=0 grdrw=1
-pollf=0 pollr=0 go=0 tix=0 tixx=0 keytog=0 fil=0 tempo=0 sprenum=1 vprenum=1 lrn=0 
+pollf=0 pollr=0 go=0 tix=0 tixx=0 keytog=0 fil=0 tempo=0 sprenum=1 vprenum=1 lrn=0 strb=0
 swuiflag=0 swim=0.0 swflag=0 lfprmult=0.5 prmfreez=0 voices={} for i=1,6 do table.insert(voices,Voic:new(i)) end 
 gridbd={4,4} gridsn={12,4} gridhh={8,8} gridxx={8,12} --1st grid page sizes and starting positions
 selct={1,1,1,1} pause={0,0,0,0} oone=0 onne=0 two=0 twoo=0 --file-'sel'(index), stutter-busy('pause's) and double-press flags
