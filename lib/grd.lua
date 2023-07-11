@@ -9,19 +9,41 @@ if grd.device then
   sparkly=include 'lib/sparkly' sprklz={}
   for i=1,6 do table.insert(sprklz,Sparkly:new(i,1,rw,cl,grd)) end
 end
-
+--2,6,8,8,6,6,4,2
 function grdraw()
   local countitup=0
   grd:all(0) grd:led(1,1,go*11+4)
   if grdpg==1 then
     for w=1,4 do countitup=countitup + params:get("S"..w.."_Ply") end 
-    if countitup==0 then 
-      if (tix%4)<=1 then 
-        for ex=1,cl do
-          grd:led(util.clamp(ex+1,2,15), util.clamp(ex%rw,2,15), (1-(tix%2))*6+9)
-          grd:led(util.clamp(cl-ex,2,15),util.clamp(ex%rw,2,15),(1-(tix%2))*6+9)
-        end
-      else grd:all(0) grd:led(1,1,go*11+4) end
+    if countitup==0 then
+      local cfst,rfst
+      if cl>8 then cfst=4 else cfst=1 end
+      if rw>8 then rfst=4 else rfst=1 end 
+      if (tix%4)<=1 then
+        for i=1,8 do for j=1,8 do 
+          if i==1 then if ((j>3) and (j<6)) then grd:led(j+cfst,i+rfst,(1-(tix%2))*10+5) end 
+          elseif i==2 then if ((j>1) and (j<8)) then grd:led(j+cfst,i+rfst,(1-(tix%2))*10+5) end
+          elseif ((i>2) and (i<5)) then grd:led(j+cfst,i+rfst,(1-(tix%2))*10+5) 
+          elseif ((i>4) and (i<7)) then if ((j>1) and (j<8)) then grd:led(j+cfst,i+rfst,(1-(tix%2))*10+5) end
+          elseif i==7 then if ((j>2) and (j<7)) then grd:led(j+cfst,i+rfst,(1-(tix%2))*10+5) end
+          elseif i==8 then if ((j>3) and (j<6)) then grd:led(j+cfst,i+rfst,(1-(tix%2))*10+5) end
+          end
+        end end
+        --[[for ex=1,cl do
+          grd:led(util.clamp(ex+1,2,15), util.clamp(ex%rw,2,15), (1-(tix%2))*6+9) --<-in case you'd prefer:..
+          grd:led(util.clamp(cl-ex,2,15),util.clamp(ex%rw,2,15),(1-(tix%2))*6+9)  --..draws a big square
+        end]]--
+      else 
+        for i=1,8 do for j=1,8 do
+          if i==1 then if ((j>3) and (j<6)) then grd:led(j+cfst,i+rfst,0) end 
+          elseif i==2 then if ((j>1) and (j<8)) then grd:led(j+cfst,i+rfst,0) end
+          elseif ((i>2) and (i<5)) then grd:led(j+cfst,i+rfst,0) 
+          elseif ((i>4) and (i<7)) then if ((j>1) and (j<8)) then grd:led(j+cfst,i+rfst,0) end
+          elseif i==7 then if ((j>2) and (j<7)) then grd:led(j+cfst,i+rfst,0) end
+          elseif i==8 then if ((j>3) and (j<6)) then grd:led(j+cfst,i+rfst,0) end
+          end 
+        end end
+      end
     else
       if grdbdn>=14 then for i=-1,1 do for j=-1,1 do grd:led(gridbd[1]+i,gridbd[2]+j,15) end end end
       grd:led(gridbd[1],gridbd[2],util.clamp(grdbdn,0,15))
