@@ -40,7 +40,7 @@ function redraw()
       if params:get("S"..k.."_Rct")>0 then screen.font_face(20) else screen.font_face(1) end screen.text("F"..k) --ran cutoff
       screen.stroke()
     end 
-  elseif page==2 then seqpg(sel)
+  elseif page==2 then seqpg(spel)
   else softcutv(vsel,hsel) end ply:redraw() screen.update() rdrw=0
 end
 
