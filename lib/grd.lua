@@ -167,12 +167,12 @@ function pag2keyz(x,y,z,rwoffst)
     if lenslct>0 then params:set("S"..lenslct.."_Sln",(64-(x+(uipag*16)))*-1) 
       else tix=(x+(uipag*16))-1 end
   elseif (y>(2+rwoffst)) and (y<(7+rwoffst)) then
-    local stepvalue=seq[y-rwoffst-1][x+(uipag*16)]
+    local stepvalue=seq[y-rwoffst-2][x+(uipag*16)]
     if ((stepvalue>0) and (sqslctd<1)) then 
-      seq[y-rwoffst-1][x+(uipag*16)]=math.random(2,11) sqslctd=1
+      seq[y-rwoffst-2][x+(uipag*16)]=math.random(2,11) sqslctd=1
     elseif ((stepvalue>0) and (sqslctd>0)) then 
-      seq[y-rwoffst-1][x+(uipag*16)]=0 sqslctd=0
-    elseif stepvalue<1 then seq[y-rwoffst-1][x+(uipag*16)]=1 end
+      seq[y-rwoffst-2][x+(uipag*16)]=0 sqslctd=0
+    elseif stepvalue<1 then seq[y-rwoffst-2][x+(uipag*16)]=1 end
   elseif y==(7+rwoffst) then
     if x<5 then params:set("S"..x.."_Dfl",1-params:get("S"..x.."_Dfl"))
     elseif x==5 then
