@@ -30,7 +30,7 @@ rezpitchz={44,46,47,49,51,52,55,56,58,59,61,63,64,67,68,70,71,73,75,76}
 fileselect=require('fileselect') scrn=include 'lib/scrn' 
 mutil=require("musicutil") vox=include("loki/lib/voic") grd=include 'lib/grd'
 fildir={_path.audio.."loki/BD/",_path.audio.."loki/SN/",_path.audio.."loki/HH/",_path.audio.."loki/XX/"}
-fildrsel=1 filsel=0 sel=-1 sl=1 vsel=1 hsel=-1 edit=0 page=1 uipag=0 spr=0 vpr=0 mpr=0 rdr=0 rdrw=0 grdrw=1
+fildrsel=1 filsel=0 sel=-1 sl=1 spel=1 vsel=1 hsel=-1 edit=0 page=1 uipag=0 spr=0 vpr=0 mpr=0 rdr=0 rdrw=0
 pollf=0 pollr=0 go=0 tix=0 tixx=0 keytog=0 fil=0 tempo=0 sprenum=1 vprenum=1 lrn=0 strb=0
 swuiflag=0 swim=0.0 swflag=0 lfprmult=0.5 prmfreez=0 voices={} for i=1,6 do table.insert(voices,Voic:new(i)) end 
 gridbd={4,4} gridsn={12,4} gridhh={8,8} gridxx={8,12} --1st grid page sizes and starting positions
@@ -128,54 +128,49 @@ end
 function gic() 
   while true do clock.sync(0.0625) -- grid display is always synchronized to a 1/16th of quarter-note(64th note)
     if grdpg==1 then
-    if grdbdn>=0 then 
-      if math.random(2)>1 then gridbd[1]=util.wrap(gridbd[1]+math.random(-1,1),2,6)
-      else gridbd[2]=util.wrap(gridbd[2]+math.random(-1,1),2,6) end
-      grdbdn=grdbdn-1 grdrw=1
-    end
-    if grdsnn>=0 then 
-      if math.random(2)>1 then gridsn[1]=util.wrap(gridsn[1]+math.random(-1,1),9,16)
-      else gridsn[2]=util.wrap(gridsn[2]+math.random(-1,1),2,6) end
-      grdsnn=grdsnn-1 grdrw=1
-    end
-    if grdhhn>=0 then 
-      if math.random(2)>1 then gridhh[1]=util.wrap(gridhh[1]+math.random(-1,1),4,12)
-      else gridhh[2]=util.wrap(gridhh[2]+math.random(-1,1),4,12) end
-      grdhhn=grdhhn-1 grdrw=1
-    end
-    if grdxxn>=0 then 
-      if math.random(2)>1 then gridxx[1]=util.wrap(gridxx[1]+math.random(-1,1),5,12)
-      else gridxx[2]=util.wrap(gridxx[2]+math.random(-1,1),6,16) end
-      grdxxn=grdxxn-1 grdrw=1
-    end
+      if grdbdn>=0 then 
+        if math.random(2)>1 then gridbd[1]=util.wrap(gridbd[1]+math.random(-1,1),2,6)
+        else gridbd[2]=util.wrap(gridbd[2]+math.random(-1,1),2,6) end
+        grdbdn=grdbdn-1
+      end
+      if grdsnn>=0 then 
+        if math.random(2)>1 then gridsn[1]=util.wrap(gridsn[1]+math.random(-1,1),9,16)
+        else gridsn[2]=util.wrap(gridsn[2]+math.random(-1,1),2,6) end
+        grdsnn=grdsnn-1 
+      end
+      if grdhhn>=0 then 
+        if math.random(2)>1 then gridhh[1]=util.wrap(gridhh[1]+math.random(-1,1),4,12)
+        else gridhh[2]=util.wrap(gridhh[2]+math.random(-1,1),4,12) end
+        grdhhn=grdhhn-1 
+      end
+      if grdxxn>=0 then 
+        if math.random(2)>1 then gridxx[1]=util.wrap(gridxx[1]+math.random(-1,1),5,12)
+        else gridxx[2]=util.wrap(gridxx[2]+math.random(-1,1),6,16) end
+        grdxxn=grdxxn-1 
+      end
     else
     end
     grdraw()
-    --if grdrw>0 then grdraw() grdrw=0 end 
   end
 end
 
-function clock.transport.start() ply.status=1; go=1; id=clock.run(popz) grdrw=1 end --start(k2 while swing/tempo selected)
+function clock.transport.start() ply.status=1; go=1; id=clock.run(popz) end --start(k2 while swing/tempo selected)
 
-function clock.transport.stop() ply.status=4; clock.cancel(id); go=0; grdrw=1 id=nil end --stop(k2 while swing/tempo slctd)
+function clock.transport.stop() ply.status=4; clock.cancel(id); go=0; id=nil end --stop(k2 while swing/tempo slctd)
 
 function enc(n,d)                         --ENCODER--
-  if n==1 then
-    local pageremember=page
-    page=util.wrap(page+d,1,3)        --enc1 switches pages
-    if pageremember==1 and page==2 then sel = util.clamp(sel-12,0,4)
-      elseif pageremember==2 and page==1 then sel = sel+12 end
+  if n==1 then page=util.wrap(page+d,1,3)                   --enc1 switches pages
   elseif n==2 then
     if page==1 then               --page1 = main page(one-shot drums played back from supercollider + timing/presets)
       sel = util.wrap(sel+d,-9,25) --enc2 scrolls parameter selection.
       if sel==-1 then ply.active=true else ply.active=false end
     elseif page==2 then
       if edit==0 then --edit mode applies to editing sequencer (-> k2 while 'vol' is hilited)
-        sel = util.wrap(sel+d,-1,5) --enc2 scrolls parameter selection..or..
-        if sel==-1 then ply.active=true else ply.active=false end
+        spel = util.wrap(spel+d,-1,5) --enc2 scrolls parameter selection..or..
+        if spel==-1 then ply.active=true else ply.active=false end
       else                                        --..scrolls through which step to edit in sequencer
-        if sel>-1 and sel<4 then 
-          sl = util.wrap(sl+d,1,(#seq[sel+1]+params:get("S"..(sel+1).."_Sln"))) 
+        if spel>-1 and spel<4 then 
+          sl = util.wrap(sl+d,1,(#seq[spel+1]+params:get("S"..(spel+1).."_Sln"))) 
           uipag=util.round(math.floor((sl-1)/16),1) end
       end
     elseif page==3 then
@@ -202,16 +197,16 @@ function enc(n,d)                         --ENCODER--
         else sprenum = util.wrap(sprenum+d,1,500) end
       elseif sel==25 then params:set("MPre",util.wrap(params:get("MPre")+d,1,500)) end
     elseif page==2 then
-      if sel>-1 and sel<4 then
-        if edit==1 then seq[sel+1][sl]=util.wrap(seq[sel+1][sl]+d,0,11)
+      if spel>-1 and spel<4 then
+        if edit==1 then seq[spel+1][sl]=util.wrap(seq[spel+1][sl]+d,0,11)
         elseif fil==1 then
-          selct[((sel)%4)+1] = util.clamp(selct[((sel)%4)+1]+d,1,#files[((sel)%4)+1])
-          engine.flex(((sel)%4),fildir[((sel)%4)+1]..files[((sel)%4)+1][selct[((sel)%4)+1]])
+          selct[((spel)%4)+1] = util.clamp(selct[((spel)%4)+1]+d,1,#files[((spel)%4)+1])
+          engine.flex(((spel)%4),fildir[((spel)%4)+1]..files[((spel)%4)+1][selct[((spel)%4)+1]])
         else
-          params:set("S"..(((sel)%4)+1).."_Sln", util.clamp(params:get("S"..(((sel)%4)+1).."_Sln") + d,-63,0))
+          params:set("S"..(((spel)%4)+1).."_Sln", util.clamp(params:get("S"..(((spel)%4)+1).."_Sln") + d,-63,0))
         end
-      elseif sel==4 then uipag=util.clamp(uipag+d,0,3) 
-      elseif sel==5 then fildrsel = util.wrap(fildrsel+d,1,4) end
+      elseif spel==4 then uipag=util.clamp(uipag+d,0,3) 
+      elseif spel==5 then fildrsel = util.wrap(fildrsel+d,1,4) end
     elseif page==3 then
       if hsel==-1 then
         if vpr>0 then params:set("VPre",util.wrap(params:get("VPre")+d,1,500)) vprenum = params:get("VPre")
@@ -292,15 +287,17 @@ function key(n,z)         --for fastest triggers from double-press, this flaggin
     if twoo==0 then
       if two<2 then
         if page==1 then
-          if sel==24 then spwrit("S_"..sprenum..".lki") --WARNING:WITH SEQ-PAGE PRESET SELECTED K2 SAVES TO FILE!!
+          if sel==-1 then --while playbutton is selected k2 can start/stop transport without reset..
+            if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
+              if go>0 then clock.transport.stop() else clock.transport.start() end end
+          elseif sel==24 then spwrit("S_"..sprenum..".lki") --WARNING:WITH SEQ-PAGE PRESET SELECTED K2 SAVES TO FILE!!
           elseif sel==25 then mpwrit("M_"..params:get("MPre")..".lki")--WARNING:WITH MASTR PRESET SELECTED, K2 SAVES FILE!
           end
         elseif page==2 then
-          if sel==-1 then --while playbutton is selected k2 can start/stop transport with reset..
+          if spel==-1 then --while playbutton is selected k2 can start/stop transport without reset..
             if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
-              if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1 
-              for i=1,6 do voices[i]:rsync() end
-          elseif sel<4 then edit=1-edit --k2-up switches to edit-sequencer
+              if go>0 then clock.transport.stop() else clock.transport.start() end end
+          elseif spel<4 then edit=1-edit --k2-up switches to edit-sequencer
           else fil=1-fil end
         else                                                        --softcut/alternate page
           if hsel==-1 then vpwrit("V_"..vprenum..".lki") --WARNING:WITH SoftCut-PAGE PRESET SELECTED, K2 SAVES FILE!
@@ -356,7 +353,7 @@ function key(n,z)         --for fastest triggers from double-press, this flaggin
       two=2
     else
       if page==1 and sel==3 then filsel=1 fileselect.enter(_path.audio,callback) else twoo=1 end
-      if page==2 and sel==5 then filsel=1 fileselect.enter(_path.audio,callback) else twoo=1 end
+      if page==2 and spel==5 then filsel=1 fileselect.enter(_path.audio,callback) else twoo=1 end
     end
   elseif n==3 and z==0 then
     if oone==0 then
@@ -394,15 +391,15 @@ function key(n,z)         --for fastest triggers from double-press, this flaggin
             tix=0 tixx=-1 for i=1,6 do voices[i]:rsync() end --..or reset&start transport if stopped
           end
         elseif page==2 then
-          if sel==-1 then
+          if spel==-1 then
             if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
               if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1
               for i=1,6 do voices[i]:rsync() end
-          elseif sel==0 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
-          elseif sel==1 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
-          elseif sel==2 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
-          elseif sel==3 then params:set("S"..(sel+1).."_Ply", 1-params:get("S"..(sel+1).."_Ply"))
-          elseif sel>3 then for y=1,4 do params:set("S"..y.."_Ply", math.random(0,1)) end end
+          elseif spel==0 then params:set("S"..(spel+1).."_Ply", 1-params:get("S"..(spel+1).."_Ply"))
+          elseif spel==1 then params:set("S"..(spel+1).."_Ply", 1-params:get("S"..(spel+1).."_Ply"))
+          elseif spel==2 then params:set("S"..(spel+1).."_Ply", 1-params:get("S"..(spel+1).."_Ply"))
+          elseif spel==3 then params:set("S"..(spel+1).."_Ply", 1-params:get("S"..(spel+1).."_Ply"))
+          elseif spel>3 then for y=1,4 do params:set("S"..y.."_Ply", math.random(0,1)) end end
         else                    --on the alternate(softcut) page, k3 can..
           if hsel==-1 then 
             vpr=1-vpr if vpr>0 then params:set("VPre",vprenum) end  --toggle preset-'activate'..
@@ -491,16 +488,16 @@ function enginstep(vc,rp,sp)     --vc=voice, rp=repeats
   local rct=params:get("S"..vc.."_Rct") local vl=params:get("S"..vc.."_Svl") 
   local engins = {        --engine.awyea#(pan, speed, gain, cutoff-freq, release-time(sec))
     function()
-      engine.awyea1(0.0,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdbdn=15 grdrw=1
+      engine.awyea1(0.0,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdbdn=15
     end, --no panning for kick drums
     function()
-      engine.awyea2(math.random(-10,10)*0.01,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdsnn=15 grdrw=1 
+      engine.awyea2(math.random(-10,10)*0.01,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdsnn=15 
     end,
     function()
-      engine.awyea3(math.random(-50,50)*0.02,sp,vl, ranfreq2+((1-rct)*6088),1.0) grdhhn=15 grdrw=1
+      engine.awyea3(math.random(-50,50)*0.02,sp,vl, ranfreq2+((1-rct)*6088),1.0) grdhhn=15
     end,
     function()
-      engine.awyea4(math.random(-50,50)*0.02,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdxxn=15 grdrw=1
+      engine.awyea4(math.random(-50,50)*0.02,sp,vl, ranfreq1+((1-rct)*8388),1.0) grdxxn=15
     end }
   engins[vc]()                           --sequencer codes: 1 - 4 = that many hits per sixteenth
   if rp>1 and rp<5 then for i=1,(rp-1) do clock.sync(1/(4*rp)) engins[vc]() end
