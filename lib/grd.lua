@@ -104,7 +104,7 @@ function pag2(rwoffst)
       if i==lenslct then grd:led(lenslct+9,1+rwoffst,10+(5*params:get("S"..lenslct.."_Ply"))) 
         else grd:led(i+9,1+rwoffst,4+(4*params:get("S"..i.."_Ply"))) end 
     end
-  end                          for i=1,4 do grd:led(i+12,8,params:get("S"..i.."_Ply")*15) end
+  end                          for i=1,4 do grd:led(i+12,8+rwoffst,params:get("S"..i.."_Ply")*15) end
 end
 
 function pag3(rwoffst)          -- PAGE 3: SOFTCUT GAMES!! :D (for now, just 'mystical sparkly' sequencer)
