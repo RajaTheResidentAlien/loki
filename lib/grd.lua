@@ -9,10 +9,10 @@ if grd.device then
   sparkly=include 'lib/sparkly' sprklz={}
   for i=1,6 do table.insert(sprklz,Sparkly:new(i,1,rw,cl,grd)) end
 end
---2,6,8,8,6,6,4,2
+
 function grdraw()
   local countitup=0
-  grd:all(0) grd:led(1,1,go*11+4)
+  grd:all(0) grd:led(1,1,go*11+4) grd:led(15,1,params:get("InMon")*11+4)
   if grdpg==1 then
     for w=1,4 do countitup=countitup + params:get("S"..w.."_Ply") end 
     if countitup==0 then
@@ -31,7 +31,7 @@ function grdraw()
         end end
         --[[for ex=1,cl do
           grd:led(util.clamp(ex+1,2,15), util.clamp(ex%rw,2,15), (1-(tix%2))*6+9) --<-in case you'd prefer:..
-          grd:led(util.clamp(cl-ex,2,15),util.clamp(ex%rw,2,15),(1-(tix%2))*6+9)  --..draws a big square
+          grd:led(util.clamp(cl-ex,2,15),util.clamp(ex%rw,2,15),(1-(tix%2))*6+9)    --..draws a big square
         end]]--
       else 
         for i=1,8 do for j=1,8 do
@@ -65,6 +65,7 @@ function grd.key(x,y,z)
         if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
           if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1
           for i=1,6 do voices[i]:rsync() sprklz[i]:go(0) end
+      elseif x==(cl-1) then params:set("InMon",1-params:get("InMon"))
       elseif x==cl then
         grdpg=util.wrap(grdpg+1,1,3); page=grdpg
       end
@@ -130,8 +131,7 @@ function pag2(rwoffst)
 end
 
 function pag3(rwoffst)          -- PAGE 3: SOFTCUT GAMES!! :D (for now, just 'mystical sparkly' sequencer)
-  grd:led(15,1+rwoffst,(vmod*3)+3) grd:led(15,2+rwoffst,(vmod*3)+3)
-  grd:led(8,1+rwoffst,(rmod*8)+7) grd:led(8,2+rwoffst,(smod*8)+7)
+  grd:led(15,2+rwoffst,(vmod*3)+3) grd:led(8,1+rwoffst,(rmod*8)+7) grd:led(8,2+rwoffst,(smod*8)+7)
   grd:led(1,2+rwoffst,(omod*5)+5) grd:led(16,2+rwoffst,(xmod*8)+7)
   for i=1,6 do 
     local flg; if ((voices[i].prerec>0) or (voices[i].rc>0)) then flg=1 else flg=0 end
@@ -150,9 +150,9 @@ function pag3(rwoffst)          -- PAGE 3: SOFTCUT GAMES!! :D (for now, just 'my
         if (params:get("V"..vsel.."_LpNum")*2)>=i then 
           for j=1,14 do grd:led(i-1-j,4+rwoffst,0) end grd:led(i,4+rwoffst,15) end
       end
-      if spd>=0 then if (spd*4)>=(i-8) then grd:led(i,5+rwoffst,15) for j=1,3 do grd:led(j,5+rwoffst,0) end end
+      if spd>=0 then if ((spd*4) >= (i-8)) then grd:led(i,5+rwoffst,15) for j=1,7 do grd:led(j,5+rwoffst,0) end end
       else 
-        if (8-(math.abs(spd)*8))<=i then grd:led(i,5+rwoffst,15) for j=1,8 do grd:led(j+8,5+rwoffst,0) end end 
+        if ((spd*4) <= (i-8)) then grd:led(i,5+rwoffst,15) for j=1,8 do grd:led(j+8,5+rwoffst,0) end end 
       end
       if (params:get("V"..vsel.."_Fbk")*16)>=i then grd:led(i,6+rwoffst,15) end
       if params:get("V"..vsel.."_In")>=i then grd:led(i-1,8+rwoffst,0) grd:led(i,8+rwoffst,15) end
@@ -228,11 +228,11 @@ end
 
 function pag3keyz(x,y,z,rwoffst)
   if y==(1+rwoffst) then
-    if x>1 and x<15 then
+    if x>1 and x<16 then
       keycount=keycount+((x-1)<<2)
     end
   elseif y==(2+rwoffst) then
-    if x>1 and x<15 then
+    if x>1 and x<16 then
       keycount=keycount+((x-1)*100)
     end
   elseif y>(2+rwoffst) then
@@ -302,21 +302,19 @@ function pag3keyzoff(x,y,z,rwoffst)
     elseif ((x>8) and (x<15)) then
       if keycount==((x-1)<<2) then 
         if voices[x-8].mde==3 then voices[x-8].prerec=2
-        else 
-          params:set("V"..(x-8).."_Rc",1-params:get("V"..(x-8).."_Rc"))
-        end
+         else params:set("V"..(x-8).."_Rc",1-params:get("V"..(x-8).."_Rc")) end
       end
-    elseif x==15 then vmod=util.wrap(vmod+1,1,4)
     end
   elseif (y==(2+rwoffst)) then
     if x==1 then omod=util.wrap(omod+1,0,2)
     elseif keycount==700 then smod=1-smod
     elseif keycount==800 then sneakyrec(1) elseif keycount==900 then sneakyrec(2) elseif keycount==1000 then sneakyrec(3)
     elseif keycount==1100 then sneakyrec(4) elseif keycount==1200 then sneakyrec(5) elseif keycount==1300 then sneakyrec(6)
-    elseif keycount==1400 then vmod=util.wrap(vmod-1,1,4)
+    elseif keycount==1400 then vmod=util.wrap(vmod+1,1,4)
     elseif x==1500 then xmod=1-xmod
     elseif ((keycount>400) and (keycount<1200)) then 
-      params:set("V"..((math.floor((((keycount*0.01)%1)*100))>>2)-7).."_In",math.floor(keycount/100)-3) 
+      local slcta=(math.floor((((keycount*0.01)%1)*100))>>2)-7 local indx=math.floor(keycount/100)-3
+      if (slcta>0) and (slcta<9) then params:set("V"..slcta.."_In",indx) end
     elseif keycount>1200 then
       params:set("V"..(((keycount-1200)>>2)-7).."_ARc",1-params:get("V"..(((keycount-1200)>>2)-7).."_ARc"))
     end
