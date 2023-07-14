@@ -1,19 +1,23 @@
 --Master preset stuff(MIDI Program Changes)
 m=midi.connect(2)
 function mpwrit(nam)                                 --Master preset write
-  local mwritab={} mwritab["SPre"]=params:get("SPre") mwritab["VPre"]=params:get("VPre") --get current 'S'equencer and softcut-'V'oice preset#s
-  mwritab["SPrePgChD"]=params:get("SPrePgChD") mwritab["SPrePgChU"]=params:get("SPrePgChU") --'..PgChD'=Program Change Down,'..PgChU'=Prog Ch Up
-  mwritab["SPreActivePgCh"]=params:get("SPreActivePgCh") mwritab["VPrePgChD"]=params:get("VPrePgChD")--'..PgCh'=Prog Ch applied as toggles
-  mwritab["VPrePgChU"]=params:get("VPrePgChU") mwritab["VPreActivePgCh"]=params:get("VPreActivePgCh")--(i.e.'activate'/'deactivate' function) 
+  local mwritab={} mwritab["SPre"]=params:get("SPre") 
+  mwritab["VPre"]=params:get("VPre") --get current 'S'equencer & softcut-'V'oice preset#s
+  mwritab["SPrePgChD"]=params:get("SPrePgChD") 
+  mwritab["SPrePgChU"]=params:get("SPrePgChU") --'..PgChD'=Program Change Down,'..PgChU'=Prog Ch Up
+  mwritab["SPreActivePgCh"]=params:get("SPreActivePgCh") 
+  mwritab["VPrePgChD"]=params:get("VPrePgChD")--'..PgCh'=Prog Ch applied as toggles
+  mwritab["VPrePgChU"]=params:get("VPrePgChU") 
+  mwritab["VPreActivePgCh"]=params:get("VPreActivePgCh")--(i.e.'activate'/'deactivate' function) 
   mwritab["InputPgCh"]=params:get("InputPgCh") mwritab["FreezePgCh"]=params:get("FreezePgCh")
-  mwritab["PlayPgCh"]=params:get("PlayPgCh")                                                      
+  mwritab["TransprtPgCh"]=params:get("TransprtPgCh")                                                      
   mwritab["RestartPgCh"]=params:get("RestartPgCh") mwritab["DelRevPgCh"]=params:get("DelRevPgCh") 
   mwritab["FXVPgCh"]=params:get("FXVPgCh") mwritab["PtchPLPgCh"]=params:get("PtchPLPgCh") 
   mwritab["PtchPRPgCh"]=params:get("PtchPRPgCh") mwritab["PtchPRzPgCh"]=params:get("PtchPRzPgCh")
   for i=1,6 do
     mwritab["V"..i.."PreFreezePgCh"]=params:get("V"..i.."PreFreezePgCh") 
-    mwritab["V"..i.."K2PgCh"]=params:get("V"..i.."K2PgCh")
-    mwritab["V"..i.."K3PgCh"]=params:get("V"..i.."K3PgCh")
+    mwritab["V"..i.."GoPgCh"]=params:get("V"..i.."GoPgCh")
+    mwritab["V"..i.."RecPgCh"]=params:get("V"..i.."RecPgCh")
     mwritab["V"..i.."LFOPgCh"]=params:get("V"..i.."LFOPgCh")
     mwritab["V"..i.."Amp2LnPgCh"]=params:get("V"..i.."Amp2LnPgCh")
     mwritab["V"..i.."Ptch2LnPgCh"]=params:get("V"..i.."Ptch2LnPgCh")
@@ -30,18 +34,18 @@ function mpread(nam)                                  --Master preset read
   local err local mreadtab={} mreadtab,err=tab.load(_path.data.."loki/"..nam)
   if err==nil then
       params:set("SPre", mreadtab["SPre"]) params:set("VPre", mreadtab["VPre"])
-      params:set("SPrePgChD",mreadtab["SPrePgChD"]) params:set("SPrePgChU",mreadtab["SPrePgChU"]) 
+      params:set("SPrePgChD",mreadtab["SPrePgChD"]) params:set("SPrePgChU",mreadtab["SPrePgChU"])
       params:set("SPreActivePgCh",mreadtab["SPreActivePgCh"]) params:set("VPrePgChD",mreadtab["VPrePgChD"]) 
       params:set("VPrePgChU",mreadtab["VPrePgChU"]) params:set("VPreActivePgCh",mreadtab["VPreActivePgCh"])
       params:set("InputPgCh", mreadtab["InputPgCh"]) params:set("FreezePgCh", mreadtab["FreezePgCh"]) 
-      params:set("PlayPgCh", mreadtab["PlayPgCh"])
+      params:set("TransprtPgCh", mreadtab["TransprtPgCh"])
       params:set("RestartPgCh", mreadtab["RestartPgCh"]) params:set("DelRevPgCh", mreadtab["DelRevPgCh"])
       params:set("FXVPgCh", mreadtab["FXVPgCh"]) params:set("PtchPLPgCh", mreadtab["PtchPLPgCh"])
       params:set("PtchPRPgCh", mreadtab["PtchPRPgCh"]) params:set("PtchPRzPgCh", mreadtab["PtchPRzPgCh"])
     for i=1,6 do 
       params:set("V"..i.."PreFreezePgCh", mreadtab["V"..i.."PreFreezePgCh"]) 
-      params:set("V"..i.."K2PgCh", mreadtab["V"..i.."K2PgCh"])
-      params:set("V"..i.."K3PgCh", mreadtab["V"..i.."K3PgCh"])
+      params:set("V"..i.."RecPgCh", mreadtab["V"..i.."RecPgCh"])
+      params:set("V"..i.."GoPgCh", mreadtab["V"..i.."GoPgCh"])
       params:set("V"..i.."LFOPgCh", mreadtab["V"..i.."LFOPgCh"])
       params:set("V"..i.."Amp2LnPgCh", mreadtab["V"..i.."Amp2LnPgCh"])
       params:set("V"..i.."Ptch2LnPgCh", mreadtab["V"..i.."Ptch2LnPgCh"])
@@ -67,18 +71,18 @@ params:add_number("VPrePgChD", "VPreProgramChangeDown", 0, 127, 20)  -- etc...
 params:add_number("VPrePgChU", "VPreProgramChangeUp", 0, 127, 21)
 params:add_number("VPreActivePgCh", "VPreActiveProgramChange", 0, 127, 17)  
 params:add_number("InputPgCh", "InputMonitorProgramChange", 0, 127, 18)     --input-monitor toggle
-params:add_number("FreezePgCh", "FreezeProgramChange", 0, 127, 19)          --freeze tempo-related params
-params:add_number("PlayPgCh", "PlayProgramChange", 0, 127, 14)              --toggle play on/off
+params:add_number("FreezePgCh", "FreezeProgramChange", 0, 127, 19)          --freeze tempo-related params(S-Page)
+params:add_number("TransprtPgCh", "TransportrogramChange", 0, 127, 14)              --transport play on/off
 params:add_number("RestartPgCh", "RestartProgramChange", 0, 127, 30)        --restart transport(w/out off)
 params:add_number("DelRevPgCh", "DelayReverbProgramChange", 0, 127, 4)      --toggle random delay/reverb
 params:add_number("FXVPgCh", "FXVortexProgramChange", 0, 127, 5)            --toggle FX Vortex on/off
 params:add_number("PtchPLPgCh", "PitchPollLeftProgramChange", 0, 127, 6)    --activate left-input pitch-poll
 params:add_number("PtchPRPgCh", "PitchPollRightProgramChange", 0, 127, 7)   --activate right-input pitch-poll
-params:add_number("PtchPRzPgCh", "PitchPollRezProgramChange", 0, 127, 8)    --apply pitch-poll(whichever is active) to pitch of rezonator
+params:add_number("PtchPRzPgCh", "PitchPollRezProgramChange", 0, 127, 8)  --apply pitch-poll(whichever's active) to rezon8r pitch
 for i=1,6 do                                                                                        --SoftCut Voices 1 thru 6
   params:add_number("V"..i.."PreFreezePgCh", "V"..i.."PreFreezeProgramChange", 0, 127, (10*i)+29)  --freeze params per-voice
-  params:add_number("V"..i.."K2PgCh", "V"..i.."K2ProgramChange", 0, 127, (10*i)+30)                --
-  params:add_number("V"..i.."K3PgCh", "V"..i.."K3ProgramChange", 0, 127, (10*i)+31)
+  params:add_number("V"..i.."RecPgCh", "V"..i.."RecProgramChange", 0, 127, (10*i)+30)                --
+  params:add_number("V"..i.."GoPgCh", "V"..i.."GoProgramChange", 0, 127, (10*i)+31)
   params:add_number("V"..i.."LFOPgCh", "V"..i.."LFOProgramChange", 0, 127, (10*i)+32)
   params:add_number("V"..i.."Amp2LnPgCh", "V"..i.."Amp2LengthProgramChange", 0, 127, (10*i)+33)
   params:add_number("V"..i.."Ptch2LnPgCh", "V"..i.."Pitch2LengthProgramChange", 0, 127, (10*i)+34)
@@ -112,8 +116,8 @@ m.event = function(data)
         if vsel==0 then if lrn==2 then params:set("VPrePgChU",d.val) else params:set("VPrePgChD",d.val) end 
         else
           if hsel==-1 then params:set("V"..vsel.."PreFreezePgCh",d.val) 
-          elseif hsel==0 then params:set("V"..vsel.."K2PgCh",d.val) 
-          elseif hsel==1 then params:set("V"..vsel.."K3PgCh",d.val) 
+          elseif hsel==0 then params:set("V"..vsel.."RecPgCh",d.val) 
+          elseif hsel==1 then params:set("V"..vsel.."GoPgCh",d.val) 
           elseif hsel==2 then params:set("V"..vsel.."LFOPgCh",d.val)
           elseif hsel==5 then params:set("V"..vsel.."Amp2LnPgCh",d.val)
           elseif hsel==7 then params:set("V"..vsel.."Ptch2LnPgCh",d.val)
@@ -128,7 +132,7 @@ m.event = function(data)
     else                     --ProgramChange assignments/functions
       for i=1,6 do  --softcut page (used more often, so checking these 1st might be slightly faster)
         if d.val == params:get("V"..i.."PreFreezePgCh") then voices[i].pfreez=1-voices[i].pfreez
-        elseif d.val == params:get("V"..i.."K2PgCh") then
+        elseif d.val == params:get("V"..i.."RecPgCh") then
           if params:get("V"..i.."_Mod")==1 then              --Mode 1 = stutter(k2 turns stutter on/off)
             params:set("V"..i.."_Go",1-params:get("V"..i.."_Go"))  --clock turns rec off after 2-4beats
             if params:get("V"..i.."_Go")>0 then params:set("V"..i.."_Rc",1) end
@@ -137,13 +141,11 @@ m.event = function(data)
           else      --Mode 3 = Live Looper; k2 sets recording to start at beginning of next cycle...
             voice[i].prerec=2                     --..then stop-recording and start-play at cycle after that
           end
-        elseif d.val == params:get("V"..i.."K3PgCh") then
-          if params:get("V"..i.."_Mod")==3 then voice[i].looplay=1-voice[i].looplay softcut.play(i,voice[i].looplay)
-           else params:set("V"..i.."_Go",1-params:get("V"..i.."_Go")) end
+        elseif d.val == params:get("V"..i.."GoPgCh") then params:set("V"..i.."_Go",1-params:get("V"..i.."_Go"))
         elseif d.val == params:get("V"..i.."LFOPgCh") then
           poslfoz[i]:set('max', util.round((voices[i].ennd[voices[i].lpno]%58)/58.0,0.0001))
           poslfoz[i]:set('min', util.round((voices[i].strt[voices[i].lpno]%58)/58.0,0.0001))
-          voices[i].plf=util.wrap(voices[i].plf+1,0,3) poslfoz[i]:set('depth', 1.0)  --resetting 'depth' may no longer be necessary
+          voices[i].plf=util.wrap(voices[i].plf+1,0,3) poslfoz[i]:set('depth', 1.0) --resetting 'depth' may no longer be necessary
           if voices[i].plf == 0 then poslfoz[i]:stop()
           elseif voices[i].plf == 1 then poslfoz[i]:set('shape', 'random') lfprmult=0.25 poslfoz[i]:start()  
           elseif voices[i].plf == 2 then poslfoz[i]:set('shape', 'saw') lfprmult=0.75 poslfoz[i]:start()
@@ -183,7 +185,7 @@ m.event = function(data)
       elseif d.val == params:get("FreezePgCh") then prmfreez=1-prmfreez
       elseif d.val == params:get("RestartPgCh") then tix=0 tixx=-1
       elseif d.val == params:get("FXVPgCh") then params:set("Fxv", 1-params:get("Fxv"))
-      elseif d.val == params:get("PlayPgCh") then
+      elseif d.val == params:get("TransprtPgCh") then
         if params:string("clock_source")=="internal" or params:string("clock_source")=="crow" then
             if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1
       elseif d.val == params:get("PtchPLPgCh") then params:set("PT1",1-params:get("PT1")) 
