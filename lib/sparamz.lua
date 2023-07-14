@@ -9,7 +9,7 @@ for i=1,4 do
   params:add_number("S"..i.."_Svl", "S"..i.."_SeqTrackVolume",0.0,4.0,1.4) params:add_number("S"..i.."_Fil", "S"..i.."_File",0,#files[i],1)
   params:set_action("S"..i.."_Fil", function(fil) selct[i]=fil engine.flex(i-1,fildir[i]..files[i][selct[i]]) end)
 end
-params:add_group("PtcnFX_Grp","PitchAndFX_Group",5)
+params:add_group("PtcnFX_Grp","PitchAndFX_Group",8)
 params:add_number("S_PRz", "PitchTrackRezonator",0,1,0)
 params:add_number("PT1", "PitchTrackLeftIn",0,1,0) params:add_number("PT2", "PitchTrackRightIn",0,1,0)
 params:set_action("PT1", function(ptr) if ptr>0 then pchlf:start() else pchlf:stop() end end)
