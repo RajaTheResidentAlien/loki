@@ -57,13 +57,17 @@ function mpread(nam)                                  --Master preset read
     end
   end
 end
-params:add_number("MPre", "MasterPreset",1,500,1) --This File Is Also Where Master Preset Is Handled
+-- *****IF YOU'D PREFER: you can edit the default MIDI-program-change assignments, manually/directly just below:***** --
+  -- (you can text-edit any of the three presets like this: rewrite the defaults how you want, save, then restart the script...
+  --    then from within the app, save to a newer preset number, come back to the preset.lua file, rinse-and-repeat... )
+-- *****just as an alternate way to create presets if you ever find it faster after getting to know param names ***** --
+params:add_number("MPre", "MasterPreset",1,500,1) --Master Preset ('MPre'/'SPre'/'VPre' don't need midimap; just for recall)
 params:set_action("MPre", function(mpre) mpread("M_"..mpre..".lki") end) --load the preset/file
 params:add_number("SPre", "SPreset",1,500,1)
 params:set_action("SPre", function(spre) spread("S_"..spre..".lki") end) --    ""
 params:add_number("VPre", "VPreset",1,500,1)
 params:set_action("VPre", function(vpre) vpread("V_"..vpre..".lki") end) --    ""
-params:add_group("PgCh_Grp","ProgramChange_Group",82)
+params:add_group("PgCh_Grp","ProgramChange_Group",81)  --
 params:add_number("SPrePgChD", "SPreProgramChangeDown", 0, 127, 10) -- S-Page program change down
 params:add_number("SPrePgChU", "SPreProgramChangeUp", 0, 127, 11)  -- S-Page program change up
 params:add_number("SPreActivePgCh", "SPreActiveProgramChange", 0, 127, 15)  --make S-page program changes active
