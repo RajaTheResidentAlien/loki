@@ -274,7 +274,8 @@ function pag3keyz(x,y,z,rwoffst)
         else
           if vmod==1 then
             if sprklz[y-rwoffst-2].busy==0 then sprklz[y-rwoffst-2].xcoord=x sprklz[y-rwoffst-2]:go(1)
-            else sprklz[y-rwoffst-2]:go(0) end
+              params:set("V"..self.num.."_Go",1)
+            else sprklz[y-rwoffst-2]:go(0) params:set("V"..self.num.."_Go",0) end
           end
         end
       end
