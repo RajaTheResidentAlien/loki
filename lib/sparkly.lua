@@ -43,7 +43,7 @@ function Sparkly:seq(step_x,step_y)
   return math.floor(self.xcoord+0.5),self.ycoord,math.floor(self.phs)
 end
 
-function Sparkly:go(noff) self.busy = noff; self.dir = (math.random(0,1)*2)-1 params:set("V"..self.num.."_Go",self.busy) end
+function Sparkly:go(noff) self.busy = noff; self.dir = (math.random(0,1)*2)-1 end
 
 function Sparkly:rev() 
   self.dir = self.dir * -1 
@@ -111,7 +111,7 @@ function Sparkly:drw(rwoffst,grd)
     end
   end
 	if voices[self.num].mde>1 then
-	   grd:led(voices[self.num].tixx+1,(self.num+2)+rwoffst,voices[self.num].pl*11+4)
+	   grd:led((voices[self.num].tixx%16)+1,(self.num+2)+rwoffst,voices[self.num].pl*11+4)
 	   grd:led(self.num+1,math.floor(voices[self.num].tixx/16)+1+rwoffst,voices[self.num].pl*11+4) 
 	 else
 	  grd:led((voices[self.num].prvstp%16)+1,(self.num+2)+rwoffst,voices[self.num].pl*11+4)
