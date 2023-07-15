@@ -1,7 +1,7 @@
 --grid stuff
 local grd = grid.connect(); 
 grdbdn=0 grdsnn=0 grdhhn=0 grdxxn=0 grdpg=1 valslx=1 valslv=1 
-sqslctd=0 maxlen=0 prevlen=-64 lenslct=0 keycount=0
+sqslctd=0 maxlen=0 prevlen=-64 lenslct=0 keycount=0 lnm={0,0,0,0,0,0} --softcut-page beats-per-bar-modifier-key flags
 vmod=1 rmod=0 smod=0 omod=0 xmod=0 --vmod = games; rmod = record-modifier-key; smod = softcut paramview
                                 --omod = offset playback position mode; xmod = xtra-modifier-key
 if grd.device then 
@@ -135,8 +135,8 @@ function pag3(rwoffst)          -- PAGE 3: SOFTCUT GAMES!! :D (for now, just 'my
   grd:led(1,2+rwoffst,(omod*5)+5) grd:led(16,2+rwoffst,(xmod*8)+7)
   for i=1,6 do 
     local flg; if ((voices[i].prerec>0) or (voices[i].rc>0)) then flg=1 else flg=0 end
-    grd:led(i+8,1+rwoffst,flg*15) 
-    grd:led(i+8,2+rwoffst,voices[i].rc*15)
+    grd:led(i+8,1+rwoffst,flg*15) grd:led(i+8,2+rwoffst,voices[i].rc*15) grd:led(i+1,2+rwoffst,lnm[i]*4+3)
+    grd:led(i+1,math.floor(voices[i].tixx/16)+1+rwoffst,voices[i].pl*11+4)
   end
   if smod>0 then
     grd:led(1+vsel,1+rwoffst,15)
@@ -158,15 +158,10 @@ function pag3(rwoffst)          -- PAGE 3: SOFTCUT GAMES!! :D (for now, just 'my
       if params:get("V"..vsel.."_In")>=i then grd:led(i-1,8+rwoffst,0) grd:led(i,8+rwoffst,15) end
     end
   else
-    if vmod==1 then 
-      for i=1,6 do
-        local xx,yy,noff
-        sprklz[i]:drw(rwoffst,grd)
-      end
+    if vmod==1 then for i=1,6 do sprklz[i]:drw(rwoffst,grd) end
     elseif vmod==2 then
     elseif vmod==3 then
-    elseif vmod==4 then
-    end
+    elseif vmod==4 then end
   end
 end
 
@@ -227,15 +222,9 @@ function pag2keyz(x,y,z,rwoffst)
 end
 
 function pag3keyz(x,y,z,rwoffst)
-  if y==(1+rwoffst) then
-    if x>1 and x<16 then
-      keycount=keycount+((x-1)<<2)
-    end
-  elseif y==(2+rwoffst) then
-    if x>1 and x<16 then
-      keycount=keycount+((x-1)*100)
-    end
-  elseif y>(2+rwoffst) then
+  if (y==(1+rwoffst)) and ((x>1) and (x<16)) then keycount=keycount+((x-1)<<2) end
+  if (y==(2+rwoffst)) and ((x>1) and (x<16)) then keycount=keycount+((x-1)*100) end
+  if y>(2+rwoffst) then
     if keycount==0 then
       if smod>0 then
         local md=params:get("V"..vsel.."_Mod")
@@ -264,18 +253,26 @@ function pag3keyz(x,y,z,rwoffst)
           elseif voices[vsel].plf == 2 then poslfoz[vsel]:set('shape', 'saw') lfprmult=0.75 poslfoz[vsel]:start()
           elseif voices[vsel].plf == 3 then poslfoz[vsel]:set('shape', 'sine') lfprmult=0.5 poslfoz[vsel]:start() end
         end
-        if y==(8+rwoffst) then params:set("V"..vsel.."_In",x) end
+        if (y==(8+rwoffst) and (x<9)) then params:set("V"..vsel.."_In",x) end
       else
         if omod==1 then
           local btsprbar = params:get("V"..(y-rwoffst-2).."_Bar")
           voices[y-rwoffst-2].tixx = ((x + (voices[y-rwoffst-2].pg*16)) % btsprbar)-1
-        elseif omod==2 then
-          tixx=x-1 for i=1,6 do voices[i]:rsync() end
+        elseif omod==2 then tixx=x-1 for i=1,6 do voices[i]:rsync() end
         else
-          if vmod==1 then
+          if lnm[1]>0 then params:set("V"..(y-rwoffst-2).."_Bar",x+((lnm[1]-1)*16)) --check each btz/bar length modifier 1st..
+          elseif lnm[2]>0 then params:set("V"..(y-rwoffst-2).."_Bar",x+((lnm[2]-1)*16))
+          elseif lnm[3]>0 then params:set("V"..(y-rwoffst-2).."_Bar",x+((lnm[3]-1)*16))
+          elseif lnm[4]>0 then params:set("V"..(y-rwoffst-2).."_Bar",x+((lnm[4]-1)*16))
+          elseif lnm[5]>0 then params:set("V"..(y-rwoffst-2).."_Bar",x+((lnm[5]-1)*16))
+          elseif lnm[6]>0 then params:set("V"..(y-rwoffst-2).."_Bar",x+((lnm[6]-1)*16))
+          elseif vmod==1 then                                                       --...if all clear, then go into gameboard
             if sprklz[y-rwoffst-2].busy==0 then sprklz[y-rwoffst-2].xcoord=x sprklz[y-rwoffst-2]:go(1)
-              params:set("V"..self.num.."_Go",1)
-            else sprklz[y-rwoffst-2]:go(0) params:set("V"..self.num.."_Go",0) end
+              params:set("V"..(y-rwoffst-2).."_Go",1)
+            else sprklz[y-rwoffst-2]:go(0) params:set("V"..(y-rwoffst-2).."_Go",0) end
+          elseif vmod==2 then
+          elseif vmod==3 then
+          elseif vmod==4 then
           end
         end
       end
@@ -283,16 +280,20 @@ function pag3keyz(x,y,z,rwoffst)
     elseif keycount==((y-2-rwoffst)*100) then params:set("V"..y-2-rwoffst.."_Bar",x+16)
     end  
   end
-  if ((keycount>100) and (keycount<325)) then params:set("V"..((keycount%100)>>2).."_Mod",math.floor(keycount/100)) end
 end           -- [toprow buttons 2-7] + [second-to-toprow 2-4] = grid-shortcut for choose mode(2=st;3=dl;4=lp) 
 
 function pag2keyzoff(x,y,z,rwoffst) keycount=0 end
 
 function pag3keyzoff(x,y,z,rwoffst)
+  if keycount==100 then lnm[1]=util.wrap(lnm[1]+1,0,2) elseif keycount==200 then lnm[2]=util.wrap(lnm[2]+1,0,2)
+  elseif keycount==300 then lnm[3]=util.wrap(lnm[3]+1,0,2) elseif keycount==400 then lnm[4]=util.wrap(lnm[4]+1,0,2)
+  elseif keycount==500 then lnm[5]=util.wrap(lnm[5]+1,0,2) elseif keycount==600 then lnm[6]=util.wrap(lnm[6]+1,0,2)
+  elseif ((keycount>100) and (keycount<325)) then params:set("V"..((keycount%100)>>2).."_Mod",math.floor(keycount/100)) 
+  elseif ((keycount>600) and (keycount<625)) then 
+    params:set("V"..((keycount%100)>>2).."_ARc",1-params:get("V"..((keycount%100)>>2).."_ARc")) end
   if (y==(1+rwoffst)) then 
     if ((x>1) and (x<8)) then
-      if smod>0 then
-        if keycount==((x-1)<<2) then vsel = x-1 end
+      if smod>0 then if keycount==((x-1)<<2) then vsel = x-1 end
       else
         if keycount==((x-1)<<2) then 
            if sprklz[x-1].busy>0 then sprklz[x-1]:go(0) 
@@ -312,13 +313,7 @@ function pag3keyzoff(x,y,z,rwoffst)
     elseif keycount==800 then sneakyrec(1) elseif keycount==900 then sneakyrec(2) elseif keycount==1000 then sneakyrec(3)
     elseif keycount==1100 then sneakyrec(4) elseif keycount==1200 then sneakyrec(5) elseif keycount==1300 then sneakyrec(6)
     elseif keycount==1400 then vmod=util.wrap(vmod+1,1,4)
-    elseif x==1500 then xmod=1-xmod
-    elseif ((keycount>400) and (keycount<1200)) then 
-      local slcta=(math.floor((((keycount*0.01)%1)*100))>>2)-7 local indx=math.floor(keycount/100)-3
-      if (slcta>0) and (slcta<9) then params:set("V"..slcta.."_In",indx) end
-    elseif keycount>1200 then
-      params:set("V"..(((keycount-1200)>>2)-7).."_ARc",1-params:get("V"..(((keycount-1200)>>2)-7).."_ARc"))
-    end
+    elseif x==1500 then xmod=1-xmod end
   end keycount=0
 end
 
