@@ -26,6 +26,7 @@
 -- ..loki will heart w/ yer play..
 -- o_O.thanx for yer mischief.O_o
 engine.name='Loki'
+spdvalz={-2,-1.5,-1.2,-1,-0.8,-0.75 -0.5,0,0.333333,0.5,0.75,0.8,1,1.2,1.5,2}
 rezpitchz={44,46,47,49,51,52,55,56,58,59,61,63,64,67,68,70,71,73,75,76}
 fileselect=require('fileselect') scrn=include 'lib/scrn' 
 mutil=require("musicutil") vox=include("loki/lib/voic") grd=include 'lib/grd'
@@ -136,7 +137,7 @@ function gic()
       if grdsnn>=0 then 
         if math.random(2)>1 then gridsn[1]=util.wrap(gridsn[1]+math.random(-1,1),9,16)
         else gridsn[2]=util.wrap(gridsn[2]+math.random(-1,1),2,6) end
-        grdsnn=grdsnn-1 
+        grdsnn=grdsnn-1
       end
       if grdhhn>=0 then 
         if math.random(2)>1 then gridhh[1]=util.wrap(gridhh[1]+math.random(-1,1),4,12)
@@ -259,7 +260,7 @@ function enc(n,d)                         --ENCODER--
   if(rdrw<1) then rdrw=1 end
 end
 
-function key(n,z)         --for fastest triggers from double-press, this flagging system seems better than using timers...
+function key(n,z)         --for fastest triggers from double-press, this flagging system allows instantaneous trigger...
   if n==1 and z==1 then   --(but makes for harder-to-follow code ;p, and k1-related-double-presses need half-second-linger on k1)..
     oone=1 onne=1             --'onne' helps track for "k1 followed by k2", 'oone' helps track for 'k1 then k3'...
   elseif n==1 and z==0 then                     --'twoo' helps for 'k3 then k2', and 'two' helps for 'k2 then k3'...
@@ -331,19 +332,23 @@ function key(n,z)         --for fastest triggers from double-press, this flaggin
       end oone=2
     elseif two==1 then
       if page==1 then
-        if ((sel>=-1) and (sel<2)) then --page1:with tempo/transport/swing selected, k2-down then k3-down(release same order)
-          params:set("InMon", 1-params:get("InMon"))  --(un)mutes input monitor
-        elseif sel>3 and sel<8 then       --otherwise, chooses random files..
-          for i=1,4 do selct[i] = math.random(#files[i]) engine.flex(i-1,fildir[i]..files[i][selct[i]]) end
-        elseif sel>7 and sel<12 then  --..or randomly toggles 'drunk-walk thru files' option..
-          for i=1,4 do params:set("S"..i.."_Dfl", math.random(2)-1) end
-        elseif sel>11 and sel<16 then  --..or randomly toggles 'random sequence length' option..
-          for i=1,4 do params:set("S"..i.."_Rln", math.random(2)-1) end
-        elseif sel>15 and sel<20 then  --..or randomly toggles 'random cutoff' option..
-          for i=1,4 do  params:set("S"..i.."_Stt", math.random(3)-1) end  --..depends on UI selected
-        elseif sel>19 and sel<24 then  --..or randomly toggles random stutter option..
-          for i=1,4 do params:set("S"..i.."_Rct", math.random(2)-1) end
-        elseif sel==24 then params:set("VPre", util.wrap(params:get("SPre"),1,500)) end
+        if lrn>0 then
+            lrn=util.wrap(lrn+1,0,2)
+          else
+            if ((sel>=-1) and (sel<2)) then --page1:w/ tempo/transprt/swing selected, k2-down then k3-down(release same order)
+              params:set("InMon", 1-params:get("InMon"))  --(un)mutes input monitor
+            elseif sel>3 and sel<8 then       --otherwise, chooses random files..
+              for i=1,4 do selct[i] = math.random(#files[i]) engine.flex(i-1,fildir[i]..files[i][selct[i]]) end
+            elseif sel>7 and sel<12 then  --..or randomly toggles 'drunk-walk thru files' option..
+              for i=1,4 do params:set("S"..i.."_Dfl", math.random(2)-1) end
+            elseif sel>11 and sel<16 then  --..or randomly toggles 'random sequence length' option..
+              for i=1,4 do params:set("S"..i.."_Rln", math.random(2)-1) end
+            elseif sel>15 and sel<20 then  --..or randomly toggles 'random cutoff' option..
+              for i=1,4 do  params:set("S"..i.."_Stt", math.random(3)-1) end  --..depends on UI selected
+            elseif sel>19 and sel<24 then  --..or randomly toggles random stutter option..
+              for i=1,4 do params:set("S"..i.."_Rct", math.random(2)-1) end
+            elseif sel==24 then params:set("VPre", util.wrap(params:get("SPre"),1,500)) end --..or with 'preset' selected,
+        end                                                   --can sync the softcut-page preset number to this page's
       elseif page==2 then
         params:set("InMon", 1-params:get("InMon")) --(un)mutes input monitor
       else              --on softcut page, k2-down followed by k3-down switches through modes
