@@ -6,7 +6,8 @@ for i=1,4 do
   params:add_number("S"..i.."_Ply", "S"..i.."_Play",0,1,1) params:add_number("S"..i.."_Stt", "S"..i.."_Stutter",0,2,0)
   params:add_number("S"..i.."_Rct", "S"..i.."_RandomCutoff",0,1,0) params:add_number("S"..i.."_Rln", "S"..i.."_RandomLength",0,1,0)
   params:add_number("S"..i.."_Dfl", "S"..i.."_DrunkFileWalk",0,1,0) params:add_number("S"..i.."_Sln", "S"..i.."_SeqLengthDiff",-63,0,0)
-  params:add_number("S"..i.."_Svl", "S"..i.."_SeqTrackVolume",0.0,4.0,1.4) params:add_number("S"..i.."_Fil", "S"..i.."_File",0,#files[i],1)
+  params:add_number("S"..i.."_Svl", "S"..i.."_SeqTrackVolume",0.0,4.0,1.4) 
+  params:add_number("S"..i.."_Fil", "S"..i.."_File",0,#files[i],1)
   params:set_action("S"..i.."_Fil", function(fil) selct[i]=fil engine.flex(i-1,fildir[i]..files[i][selct[i]]) end)
 end
 params:add_group("PtcnFX_Grp","PitchAndFX_Group",8)
