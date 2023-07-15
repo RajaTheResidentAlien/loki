@@ -112,7 +112,6 @@ function Sparkly:drw(rwoffst,grd)
   end
 	if voices[self.num].mde>1 then
 	   grd:led((voices[self.num].tixx%16)+1,(self.num+2)+rwoffst,voices[self.num].pl*11+4)
-	   grd:led(self.num+1,math.floor(voices[self.num].tixx/16)+1+rwoffst,voices[self.num].pl*11+4) 
 	 else
 	  grd:led((voices[self.num].prvstp%16)+1,(self.num+2)+rwoffst,voices[self.num].pl*11+4)
 	 end
