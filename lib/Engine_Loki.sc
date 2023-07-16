@@ -31,7 +31,7 @@ Engine_Loki : CroneEngine {
 	}
 
 	alloc {
-		pg = ParGroup.tail(context.xg);
+		pg = ParGroup.head(context.xg);
 		dg = ParGroup.after(pg);
 		fxg = ParGroup.after(dg);
 		mg = ParGroup.after(fxg);
@@ -39,7 +39,7 @@ Engine_Loki : CroneEngine {
 		sawc2 = IdentityDictionary.new(maxVoices);
 		sawc3 = IdentityDictionary.new(maxVoices);
 		sawc4 = IdentityDictionary.new(maxVoices);
-		fxroute = fxnum.do.collect({ Bus.control(context.server, 1).set(0) });
+		fxroute = fxnum.do.collect({ Bus.control(context.server, 1).set(0) }); //control bus: allows for an easy .asMap(see below)
 		smokefx = fxnum.do.collect({ Bus.audio(context.server, 2) });
 	  mastering = Bus.audio(context.server,2);
 		bfr = 4.do.collect({ Buffer.new(context.server) });
