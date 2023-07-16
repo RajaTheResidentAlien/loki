@@ -120,8 +120,8 @@ end
 
 function uic() 
   while true do
-    if page==2 then clock.sync(1/4) --if on sequencer page, synchronize visual to clock, otherwise...
-    else clock.sleep(0.0625) end    --refresh every 1/16th of a second
+    if page>1 then clock.sync(1/4) --if on sequencer page, synchronize visual to clock, otherwise...
+    else clock.sleep(0.2) end    --refresh every 1/5th of a second
     if filsel<1 and rdrw>0 then redraw() end --let 'fileselect' have its own redraw(+ only redraw if not already)
   end
 end
@@ -572,7 +572,7 @@ function popz()         --main triggering clock function
           end
         elseif params:get("V"..i.."_Mod")==2 and params:get("V"..i.."_Go")>0 then   -- elseif in delay mode..
           params:set("V"..i.."_Rc",util.clamp(math.random(5)-2,0,1)) --random chance of 3/5 that delay turns on every bar
-    end end end
+    end end if rdrw<1 then rdrw=1 end end
     for i=1,6 do                                     --outside of quarternotes, do this every 16th:
       if params:get("V"..i.."_Go")>0 then
         local pnabausch=params:get("V"..i.."_Pn") local btsprbar = params:get("V"..i.."_Bar") local txx = voices[i].tixx
@@ -589,7 +589,7 @@ function popz()         --main triggering clock function
       local swdth=params:get("Swdth")
       params:set("Swng",util.clamp(params:get("Swng")+(math.random(-5,5)*0.01),swim-swdth,swim+swdth)) 
     end
-    swflag = 1-swflag if (rdrw<1) then rdrw=1 end
+    swflag = 1-swflag
   end
 end
 
