@@ -212,8 +212,7 @@ function enc(n,d)                         --ENCODER--
       if hsel==-1 then
         if vpr>0 then params:set("VPre",util.wrap(params:get("VPre")+d,1,500)) vprenum = params:get("VPre")
         else vprenum = util.wrap(vprenum+d,1,500) end
-      elseif hsel==2 then                              --hsel=2 - softcut voice(vsel)
-        vsel=util.wrap(vsel+d,1,6)
+      elseif ((hsel==2) or (hsel==3))  then vsel=util.wrap(vsel+d,1,6)      --hsel=2||3 - softcut voice(vsel)
       elseif hsel==4 then                            --hsel=4 - input_select
         params:set("V"..vsel.."_In",util.clamp(params:get("V"..vsel.."_In")+d,1,8))
       elseif hsel==5 then                    --hsel=5 > mode selection(stutter(1),delay(2),loop(3))
@@ -551,7 +550,7 @@ function popz()         --main triggering clock function
             elseif chs==2 then engine.rzset(rezpitchz[math.random(20)],0.22,0.28); engine.fxrtrz(keytog)
             elseif chs==3 then engine.fxrtrv(keytog) end
       end end end
-      tixx = tixx + 1 -- tixx = 1/4 note
+      tixx = tixx + 1 -- tixx = 1/4 note 
       for i=1,6 do  --automated control over recording/playback progression of live-looper(or over punch in/out of delay)
         local btsprbar=params:get("V"..i.."_Bar") voices[i].tixx = (voices[i].tixx+1) % btsprbar
         if poslfoz[i]:get('enabled') == 1 then if math.random(2)>1 then poslfoz[i]:set('period', math.random(8)*lfprmult) end end
