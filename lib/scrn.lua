@@ -78,7 +78,7 @@ function softcutv(vs,hs)
   hilite(hs,1) mcs(2,8,2,8,0.5) hilite(hs,2) screen.rect(8,3,8,9) screen.move(10,10) 
   screen.text(vs) mcs(20,8,20,8,0.5+(voices[vs].pfreez*0.5)) hilite(hs,3) 
   if params:get("V"..vs.."_Mod")==3 then mcs(26,8,26,8,voices[vs].looplay+1) else mcs(26,8,26,8,params:get("V"..vs.."_Go")+1) end
-  screen.level(5) mcs(33,8,33,8,params:get("V"..vs.."_Rc")+1)
+  screen.level(5) mcs(33,8,33,8,util.clamp(params:get("V"..vs.."_Rc")+voices[vs].rc,0,1) + 1)
   hilite(hs,4) screen.move(38,10) screen.text(params:string("V"..vs.."_In")) --input
   hilite(hs,5) screen.font_size(10) screen.move(50,11) screen.text(params:string("V"..vs.."_Mod")) hilite(hs,6) --mode
   if(params:get("V"..vs.."_Mod")<3) then mcs(2,15,2,15,params:get("V"..vs.."_ALn")*0.5+0.5) end --AmplitudePoll2Length
