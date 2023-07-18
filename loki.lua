@@ -175,7 +175,10 @@ function enc(n,d)                         --ENCODER--
           uipag=util.round(math.floor((sl-1)/16),1) end
       end
     elseif page==3 then
-      hsel=util.wrap(hsel+d,-1,16)    --on softcut page, enc2 selects which 'v'oice
+      if params:get("V"..vsel.."_Mod")==3 then
+        if d>0 then if hsel==5 then hsel=8 else hsel=util.wrap(hsel+d,-1,16) end
+          elseif d<0 then if hsel==7 then hsel=5 else hsel=util.wrap(hsel+d,-1,16) end end
+        else hsel=util.wrap(hsel+d,-1,16) end --on softcut page, enc2 selects params
       if hsel==0 then ply.active=true else ply.active=false end
     end
   elseif n==3 then              --enc3 changes parameter values(or edits chosen step in sequencer)
@@ -208,7 +211,7 @@ function enc(n,d)                         --ENCODER--
         end
       elseif spel==4 then uipag=util.clamp(uipag+d,0,3) 
       elseif spel==5 then fildrsel = util.wrap(fildrsel+d,1,4) end
-    elseif page==3 then
+    else
       if hsel==-1 then
         if vpr>0 then params:set("VPre",util.wrap(params:get("VPre")+d,1,500)) vprenum = params:get("VPre")
         else vprenum = util.wrap(vprenum+d,1,500) end
@@ -259,8 +262,8 @@ function enc(n,d)                         --ENCODER--
   if(rdrw<1) then rdrw=1 end
 end
 
-function key(n,z)         --for fastest triggers from double-press, this flagging system allows instantaneous trigger...
-  if n==1 and z==1 then   --(but makes for harder-to-follow code ;p, and k1-related-double-presses need half-second-linger on k1)..
+function key(n,z)         --made this flagging system for double-key-combo to provide instantaneous trigger...
+  if n==1 and z==1 then --(but makes for harder-to-follow code ;p, and k1-related-double-keyz need slight linger on k1 anyways)..
     oone=1 onne=1             --'onne' helps track for "k1 followed by k2", 'oone' helps track for 'k1 then k3'...
   elseif n==1 and z==0 then                     --'twoo' helps for 'k3 then k2', and 'two' helps for 'k2 then k3'...
     onne=util.clamp(onne-1,0,2) oone=util.clamp(oone-1,0,2)
@@ -274,12 +277,15 @@ function key(n,z)         --for fastest triggers from double-press, this flaggin
         vprenum=params:get("VPre")
       end onne=2
     elseif twoo==1 then                               --k3 followed by k2 toggles random echo/reverb
-      keytog=1-keytog
-      if sel==2 then engine.rzset(rezpitchz[math.random(20)],0.22,0.28); engine.fxrtrz(1)
+      if ((page==3) and (hsel==3)) then sneakyrec(vsel)
       else
-        if keytog>0 then engine.dstset(math.random(1,6)*((tempo/60.)*0.03125),1) engine.fxrtrv(math.random(0,1)) 
-        else engine.fxrtrv(0) end
-        engine.fxrtds(keytog*2) 
+        keytog=1-keytog
+        if sel==2 then engine.rzset(rezpitchz[math.random(20)],0.22,0.28); engine.fxrtrz(1)
+        else
+          if keytog>0 then engine.dstset(math.random(1,6)*((tempo/60.)*0.03125),1) engine.fxrtrv(math.random(0,1)) 
+          else engine.fxrtrv(0) end
+          engine.fxrtds(keytog*2) 
+        end 
       end twoo=2
     else two=1 end
   elseif n==2 and z==0 then                
@@ -350,8 +356,9 @@ function key(n,z)         --for fastest triggers from double-press, this flaggin
         end                                                   --can sync the softcut-page preset number to this page's
       elseif page==2 then
         params:set("InMon", 1-params:get("InMon")) --(un)mutes input monitor
-      else              --on softcut page, k2-down followed by k3-down switches through modes
+      else              --on softcut page, k2-down followed by k3-down switches "mode"(unless '•' is selected then "loop#")
         if hsel<=2 then params:set("InMon", 1-params:get("InMon")) -- or (un)mutes input monitor(with transport/preset selected)
+        elseif hsel==3 then for i=1,6 do params:set("V"..i.."_LpNum",util.wrap(params:get("V"..i.."_LpNum")+1,1,8)) end
           else params:set("V"..vsel.."_Mod",util.wrap(params:get("V"..vsel.."_Mod")+1,1,3)) end
       end
       two=2
@@ -412,14 +419,14 @@ function key(n,z)         --for fastest triggers from double-press, this flaggin
               if go>0 then clock.transport.stop() else clock.transport.start() end end tix=0 tixx=-1
               for i=1,6 do voices[i]:rsync() end
           elseif hsel==2 then voices[vsel].pfreez=1-voices[vsel].pfreez --..freeze params so the next preset doesn't load this row..
-          elseif hsel==3 then --..or toggle playback for the softcut voice(s) if the "-/>" in each row is selected..
+          elseif hsel>=3 and hsel<6 then --..or toggle playback for the softcut voice if the "•" at top of voice-page is selected..
             params:set("V"..vsel.."_Go",1-params:get("V"..vsel.."_Go"))
-          elseif hsel==6 then
-            params:set("V"..vsel.."_ALn",1-params:get("V"..vsel.."_ALn"))
-          elseif hsel==7 then
-            params:set("V"..vsel.."_PLn",1-params:get("V"..vsel.."_PLn"))
+          elseif hsel==6 then params:set("V"..vsel.."_ALn",1-params:get("V"..vsel.."_ALn"))
+          elseif hsel==7 then params:set("V"..vsel.."_PLn",1-params:get("V"..vsel.."_PLn"))
+          elseif hsel==8 then params:set("V"..vsel.."_Go",1-params:get("V"..vsel.."_Go"))
           elseif hsel==9 then
-            params:set("V"..vsel.."_APs",1-params:get("V"..vsel.."_APs"))
+            if params:get("V"..vsel.."_Mod")==3 then params:set("V"..vsel.."_Go",1-params:get("V"..vsel.."_Go"))
+              else params:set("V"..vsel.."_APs",1-params:get("V"..vsel.."_APs")) end
           elseif hsel==11 then
             params:set("V"..vsel.."_ASp",1-params:get("V"..vsel.."_ASp"))
           elseif hsel==15 then
