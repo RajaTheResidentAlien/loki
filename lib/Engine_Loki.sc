@@ -40,7 +40,7 @@ Engine_Loki : CroneEngine {
 		sawc3 = IdentityDictionary.new(maxVoices);
 		sawc4 = IdentityDictionary.new(maxVoices);
 		fxroute = fxnum.do.collect({ Bus.control(context.server, 1).set(0) }); //control bus: allows for an easy .asMap(see below)
-		smokefx = fxnum.do.collect({ Bus.audio(context.server, 2) });
+		smokefx = fxnum.do.collect({ Bus.audio(context.server, 2) }); //...hoping this can apply to more dynamic routing added later
 	  mastering = Bus.audio(context.server,2);
 		bfr = 4.do.collect({ Buffer.new(context.server) });
 
@@ -133,8 +133,8 @@ Engine_Loki : CroneEngine {
 			var val = msg[1].midicps, gn = msg[2], md1 = msg[3], md2 = msg[4]; 
 			xtra = msg[5]; if(xtra>0, {ot=smokefx[xtra-1];},{ot=mastering;});
       rzr = Synth("Rezor", 
-      [\out,ot,\freq,val,\amp,gn,\rngz,md1,\fxindx,smokefx[md2],\noff,fxroute[0].asMap], 
-      target:fxg);
+      [\out,ot,\freq,val,\amp,gn,\rngz,md1,\fxindx,smokefx[md2],\noff,fxroute[0].asMap], //eventually, can i change these .asMap..
+      target:fxg);                                                                        //...assignments dynamically?
 		});
 		
 		this.addCommand("rzset", "iff", { arg msg;
