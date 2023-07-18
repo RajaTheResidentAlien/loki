@@ -30,7 +30,9 @@ end
 function Voic:new(num)
   local v = setmetatable({}, { __index = Voic })
   v.num=num  v.mde=1 v.spd=1 v.vol=1 v.bar=8 v.looplay=0 v.busy=0 v.lpcount=1 v.prerec=0 v.pl=0 v.rc=0 v.pfreez=0 v.pg=0
-  v.lpno=1 v.tixx=0 v.prvstp=0 v.strt={delmap(num)+58,0,0,0,0,0,0,0} v.ennd={delmap(num)+116,0,0,0,0,0,0,0} v.plf=0  
+  v.lpno=1 v.tixx=0 v.prvstp=0 v.plf=0
+  v.strt={delmap(num)+58,delmap(num)+58,delmap(num)+58,delmap(num)+58,delmap(num)+58,delmap(num)+58,delmap(num)+58,delmap(num)+58} 
+  v.ennd={delmap(num)+116,delmap(num)+116,delmap(num)+116,delmap(num)+116,delmap(num)+116,delmap(num)+116,delmap(num)+116,delmap(num)+116} 
   softcut.enable(v.num,1) softcut.buffer(v.num,((v.num-1)%2)+1) softcut.loop(v.num,1) --setup softcut
   softcut.rec_level(v.num,1.0)  softcut.level(v.num,1.0) softcut.rate(v.num,1.0) softcut.pan(v.num,(v.num%2)*2-1) 
   softcut.level_input_cut(((v.num-1)%2+1),v.num,1.0) softcut.fade_time(v.num,0.002) softcut.pan_slew_time(v.num,0.05)
